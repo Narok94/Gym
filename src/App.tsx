@@ -23,20 +23,95 @@ import PerfilTab from './components/PerfilTab';
 
 export default function App() {
   // Authentication states
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tatu_isAuthenticated');
+      return stored === 'true';
+    }
+    return false;
+  });
   const [userLogin, setUserLogin] = useState('');
   const [passLogin, setPassLogin] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
 
   // Navigation Tabs: 'dashboard' | 'active-workout' | 'exercises' | 'profile'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'active-workout' | 'exercises' | 'profile'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'active-workout' | 'exercises' | 'profile'>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tatu_activeTab');
+      if (stored === 'dashboard' || stored === 'active-workout' || stored === 'exercises' || stored === 'profile') {
+        return stored;
+      }
+    }
+    return 'dashboard';
+  });
 
   // Shared application states
-  const [userProfile, setUserProfile] = useState<UserProfile>(MOCK_USER_PROFILE);
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tatu_userProfile');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error('Error parsing user profile from localStorage', e);
+        }
+      }
+    }
+    return MOCK_USER_PROFILE;
+  });
   const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutSession[]>(WORKOUT_TEMPLATES);
-  const [activeWorkout, setActiveWorkout] = useState<WorkoutSession | null>(null);
-  const [workoutHistory, setWorkoutHistory] = useState<HistorySession[]>(MOCK_WORKOUT_HISTORY);
+  const [activeWorkout, setActiveWorkout] = useState<WorkoutSession | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tatu_activeWorkout');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error('Error parsing active workout from localStorage', e);
+        }
+      }
+    }
+    return null;
+  });
+  const [workoutHistory, setWorkoutHistory] = useState<HistorySession[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tatu_workoutHistory');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error('Error parsing workout history from localStorage', e);
+        }
+      }
+    }
+    return MOCK_WORKOUT_HISTORY;
+  });
+
+  // Sync state to localStorage
+  React.useEffect(() => {
+    localStorage.setItem('tatu_isAuthenticated', String(isAuthenticated));
+  }, [isAuthenticated]);
+
+  React.useEffect(() => {
+    localStorage.setItem('tatu_activeTab', activeTab);
+  }, [activeTab]);
+
+  React.useEffect(() => {
+    localStorage.setItem('tatu_userProfile', JSON.stringify(userProfile));
+  }, [userProfile]);
+
+  React.useEffect(() => {
+    if (activeWorkout) {
+      localStorage.setItem('tatu_activeWorkout', JSON.stringify(activeWorkout));
+    } else {
+      localStorage.removeItem('tatu_activeWorkout');
+    }
+  }, [activeWorkout]);
+
+  React.useEffect(() => {
+    localStorage.setItem('tatu_workoutHistory', JSON.stringify(workoutHistory));
+  }, [workoutHistory]);
 
   // Accomplishment modal view overlay state
   const [showFinishOverlay, setShowFinishOverlay] = useState(false);
@@ -586,7 +661,7 @@ export default function App() {
             <span className="absolute top-1 right-5 w-2.5 h-2.5 bg-red-500 border border-slate-950 rounded-full animate-ping"></span>
           )}
           <Dumbbell className="w-5 h-5" />
-          <span className="text-[10px] tracking-wide font-sans">Treino Active</span>
+          <span className="text-[10px] tracking-wide font-sans">Treino Ativo</span>
         </button>
 
         <button

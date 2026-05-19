@@ -125,8 +125,8 @@ export default function ExercisesTab({
                     <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-neon-green/80">
                       <Dumbbell className="w-4 h-4" />
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs font-bold text-white font-sans truncate">{ex.name}</h4>
+                    <div className="min-w-0 pr-1">
+                      <h4 className="text-xs font-bold text-white font-sans break-words whitespace-normal leading-tight">{ex.name}</h4>
                       <span className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-semibold">{ex.category}</span>
                     </div>
                   </div>

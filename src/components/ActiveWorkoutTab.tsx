@@ -52,7 +52,16 @@ export default function ActiveWorkoutTab({
   // Initialize and run the main Workout timer
   useEffect(() => {
     if (activeWorkout) {
-      workoutSeconds === 0 && setWorkoutSeconds(1); // start at least at 1
+      // Calculate elapsed seconds to survive reloads/refresh page
+      let initialSecs = 1;
+      if (activeWorkout.startTime) {
+        const elapsedMs = Date.now() - new Date(activeWorkout.startTime).getTime();
+        if (elapsedMs > 0) {
+          initialSecs = Math.floor(elapsedMs / 1000);
+        }
+      }
+      setWorkoutSeconds(initialSecs);
+
       workoutTimerRef.current = setInterval(() => {
         setWorkoutSeconds((prev) => prev + 1);
       }, 1000);
@@ -161,17 +170,19 @@ export default function ActiveWorkoutTab({
   // Render Workout Selector if no workout is active
   if (!activeWorkout) {
     return (
-      <div className="space-y-6 animate-fade-in px-1 text-center py-6">
+      <div className="space-y-6 animate-fade-in px-1 text-center py-10">
         <div className="w-16 h-16 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center text-neon-green mx-auto shadow-lg mb-4">
           <Dumbbell className="w-8 h-8" />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <h2 className="text-xl font-display font-extrabold text-white">Nenhum Treino Ativo</h2>
-          <p className="text-gray-400 text-sm max-w-sm mx-auto">
-            Você não está em uma sessão no momento. Escolha uma das suas rotinas abaixo para esmagar as metas!
+          <p className="text-gray-400 text-xs sm:text-sm max-w-xs sm:max-w-sm mx-auto leading-relaxed">
+            Nenhuma sessão de treino iniciada. Vá até à aba <span className="text-neon-green font-bold">Dashboard</span> e comece o seu treino recomendado do dia! 🏋️⚡
           </p>
         </div>
 
+        {/* Workout library templates list - Hidden for now as requested */}
+        {/*
         <div className="space-y-3 pt-4 text-left max-w-md mx-auto">
           {workoutTemplates.map((template) => (
             <div 
@@ -198,6 +209,7 @@ export default function ActiveWorkoutTab({
             </div>
           ))}
         </div>
+        */}
       </div>
     );
   }

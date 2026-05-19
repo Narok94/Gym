@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Flame, Calendar, Dumbbell, TrendingUp, Trophy } from 'lucide-react';
+import { Flame, Dumbbell, Zap } from 'lucide-react';
 import { WorkoutSession, UserProfile } from '../types';
 
 interface DashboardTabProps {
@@ -16,8 +16,7 @@ export default function DashboardTab({
   completedHistoryCount
 }: DashboardTabProps) {
   // Determine suggested workout of the day.
-  // We can cycle based on some rule, but let's offer the top unused workout templates, e.g. workout-a, b, or c.
-  const todayIndex = new Date().getDay(); // 0 is Sunday, 1 is Monday, 2 is Tuesday, etc.
+  const todayIndex = new Date().getDay(); // 0 is Sunday, 1 is Monday, etc.
   // Monday/Thursday -> Workout A, Tuesday/Friday -> Workout B, Wednesday/Saturday -> Workout C, Sunday -> Cardio
   let recommendedTemplate = workoutTemplates[0]; // default A
   if (todayIndex === 2 || todayIndex === 5) {
@@ -26,7 +25,19 @@ export default function DashboardTab({
     recommendedTemplate = workoutTemplates[2] || workoutTemplates[0]; // C
   }
 
-  // Weakday constancy logic
+  // Focus helper string for subtitle
+  let trainingFocus = '';
+  if (recommendedTemplate.id === 'workout-a') {
+    trainingFocus = 'Foco em Peito, Tríceps e Ombros';
+  } else if (recommendedTemplate.id === 'workout-b') {
+    trainingFocus = 'Foco em Costas, Bíceps e Abdômen';
+  } else if (recommendedTemplate.id === 'workout-c') {
+    trainingFocus = 'Foco em Pernas e Panturrilhas';
+  } else {
+    trainingFocus = 'Foco em Alta Performance';
+  }
+
+  // Weekday constancy logic
   const weekDays = [
     { key: 'seg', label: 'S', name: 'Segunda', done: true },
     { key: 'ter', label: 'T', name: 'Terça', done: true },
@@ -37,166 +48,80 @@ export default function DashboardTab({
     { key: 'dom', label: 'D', name: 'Domingo', done: false }
   ];
 
+  const firstName = userProfile.name ? userProfile.name.split(' ')[0] : 'Atleta';
+
   return (
-    <div className="space-y-6 animate-fade-in px-1">
-      {/* Header and Welcome */}
-      <div className="flex items-center justify-between pb-2">
-        <div>
-          <h1 className="text-2xl font-display font-extrabold tracking-tight text-white flex items-center gap-2">
-            TATU <span className="text-neon-green">GYM</span>
-          </h1>
-          <p className="text-gray-400 text-xs">Acompanhamento de alta performance</p>
-        </div>
-        <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-full px-3 py-1.5">
-          <Flame className="w-4 h-4 text-neon-green fill-neon-green" />
-          <span className="text-sm font-bold text-white font-mono">{userProfile.streakDays} Dias</span>
+    <div className="space-y-5 animate-fade-in px-1">
+      {/* 1. Header (Greeting and streak on a single elegant line) */}
+      <div className="flex items-center justify-between bg-slate-900/60 border border-slate-800/60 rounded-xl px-4 py-3 shadow-sm">
+        <span className="text-sm font-bold text-white flex items-center gap-1.5">
+          Olá, {firstName}! 👋
+        </span>
+        <div className="flex items-center gap-1.5 bg-neon-green/10 border border-neon-green/35 rounded-lg px-2.5 py-1">
+          <Flame className="w-4 h-4 text-neon-green fill-neon-green animate-pulse" />
+          <span className="text-xs font-bold text-white font-mono">{userProfile.streakDays} Dias Seguidos</span>
         </div>
       </div>
 
-      {/* User Greeting Card */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 shadow-xl">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-neon-green/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-        <div className="flex items-center gap-4">
-          <img 
-            src={userProfile.avatarUrl} 
-            alt={userProfile.name} 
-            className="w-12 h-12 rounded-full object-cover border-2 border-neon-green"
-            referrerPolicy="no-referrer"
-          />
-          <div>
-            <h2 className="text-lg font-display font-bold text-white">E aí, {userProfile.name.split(' ')[0]}! 👋</h2>
-            <p className="text-slate-400 text-xs">Pronto para esmagar mais um treino hoje?</p>
+      {/* 2. Central Hero Card: Today's Workout Recommended Selector */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col space-y-5">
+        {/* Glow decoration */}
+        <div className="absolute top-0 right-0 w-36 h-36 bg-neon-green/10 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-lime-500/5 rounded-full blur-2xl -ml-6 -mb-6 pointer-events-none"></div>
+
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase font-mono font-bold tracking-wider text-neon-green">
+              Treino de Hoje
+            </p>
+            <h3 className="text-xl font-display font-extrabold text-white leading-tight">
+              {recommendedTemplate.name}
+            </h3>
+            <p className="text-xs text-slate-400 font-sans">
+              {trainingFocus} • {recommendedTemplate.exercises.length} Exercícios
+            </p>
+          </div>
+          <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-850 text-neon-green">
+            <Dumbbell className="w-5 h-5" />
           </div>
         </div>
 
-        {/* Short motivational quote */}
-        <div className="mt-4 border-l-2 border-neon-green/40 pl-3 py-1 bg-slate-900/40 rounded-r-lg">
-          <p className="text-xs italic text-gray-300">
-            "A persistência é o caminho do êxito. Cada repetição aproxima você da sua melhor versão."
-          </p>
-        </div>
-      </div>
-
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col items-center text-center">
-          <TrendingUp className="w-5 h-5 text-neon-green mb-1" />
-          <span className="text-xs text-gray-400">Peso Atual</span>
-          <span className="text-sm font-bold text-white font-mono mt-0.5">{userProfile.currentWeight} kg</span>
-        </div>
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col items-center text-center">
-          <Trophy className="w-5 h-5 text-neon-green mb-1" />
-          <span className="text-xs text-gray-400">Realizados</span>
-          <span className="text-sm font-bold text-white font-mono mt-0.5">{completedHistoryCount}</span>
-        </div>
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col items-center text-center">
-          <Calendar className="w-5 h-5 text-neon-green mb-1" />
-          <span className="text-xs text-gray-400">Nível</span>
-          <span className="text-xs font-bold text-neon-green mt-1 px-1.5 py-0.5 bg-neon-green/10 rounded-full">
-            {userProfile.level}
-          </span>
-        </div>
-      </div>
-
-      {/* featured Today's Workout Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-neon-green/10 rounded-xl text-neon-green">
-              <Dumbbell className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-mono">Recomendado de Hoje</p>
-              <h3 className="text-base font-display font-bold text-white">{recommendedTemplate.name}</h3>
-            </div>
-          </div>
-        </div>
-
-        {/* Exercises bullet preview */}
-        <div className="bg-slate-950/60 border border-slate-800/40 rounded-xl p-3.5 space-y-2">
-          <p className="text-xs text-slate-400 font-semibold mb-1 flex items-center gap-1.5">
-            <span>Exercícios planejados:</span>
-            <span className="text-neon-green text-xs font-mono font-bold bg-neon-green/10 px-1.5 py-0.5 rounded">
-              {recommendedTemplate.exercises.length} total
-            </span>
-          </p>
-          <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
-            {recommendedTemplate.exercises.map((we, idx) => (
-              <div key={we.id} className="flex justify-between items-center text-xs">
-                <span className="text-slate-300 font-medium truncate max-w-[200px]">
-                  {idx + 1}. {we.exercise.name}
-                </span>
-                <span className="text-slate-500 font-mono text-[10px] shrink-0">
-                  {we.sets.length} séries
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Start Workout Button */}
+        {/* Big Neon Action Key */}
         <button
           onClick={() => onStartWorkout(recommendedTemplate.id)}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-neon-green to-lime-500 text-slate-950 font-bold font-display rounded-xl py-3 px-4 hover:shadow-[0_0_15px_rgba(163,230,53,0.3)] hover:scale-[1.01] transition-all cursor-pointer select-none text-sm"
+          className="w-full flex items-center justify-center gap-2 bg-neon-green hover:bg-lime-400 active:scale-[0.99] text-slate-950 font-display font-extrabold text-sm py-4 rounded-xl shadow-[0_4px_20px_rgba(163,230,53,0.15)] hover:shadow-[0_4px_25px_rgba(163,230,53,0.3)] transition-all cursor-pointer select-none tracking-wider uppercase"
           id="btn-start-today-workout"
         >
-          <Play className="w-4 h-4 fill-slate-950" />
-          <span>Iniciar Treino de Hoje</span>
+          <Zap className="w-4 h-4 fill-slate-950 stroke-[2.5]" />
+          <span>Esmagar Treino ⚡</span>
         </button>
-
-        {/* Routine selection if they don't want the recommended one */}
-        <div className="pt-2">
-          <p className="text-[10px] text-center text-gray-500 font-semibold mb-2">OU SELECIONE OUTRA ROTINA DE TREINO:</p>
-          <div className="grid grid-cols-2 gap-2">
-            {workoutTemplates
-              .filter(w => w.id !== recommendedTemplate.id)
-              .map((w) => (
-                <button
-                  key={w.id}
-                  onClick={() => onStartWorkout(w.id)}
-                  className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-medium py-2 px-3 rounded-lg text-left truncate transition-colors cursor-pointer"
-                >
-                  ⚡ {w.name.split(' - ')[1] || w.name}
-                </button>
-              ))}
-          </div>
-        </div>
       </div>
 
-      {/* Constancy Tracker (Checks of the week) */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 shadow-md">
-        <h3 className="text-sm font-display font-bold text-white mb-3 flex items-center justify-between">
+      {/* 3. Consistency Tracker (A compact visual tracker of the week) */}
+      <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-4 shadow-sm space-y-3">
+        <h3 className="text-xs font-display font-bold text-slate-400 flex items-center justify-between">
           <span>Constância Semanal</span>
-          <span className="text-[10px] text-gray-400 font-normal">Meta: 5 treinos/semana</span>
+          <span className="text-[9px] text-slate-500 font-mono">Meta: 5 treinos/semana</span>
         </h3>
-        <div className="grid grid-cols-7 gap-1.5 pt-1">
+        <div className="grid grid-cols-7 gap-1">
           {weekDays.map((day) => (
-            <div key={day.key} className="flex flex-col items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-medium">{day.label}</span>
+            <div key={day.key} className="flex flex-col items-center gap-1.5">
+              <span className="text-[9px] text-slate-500 font-medium">{day.label}</span>
               <div 
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                   day.done 
-                    ? 'bg-neon-green/20 border-2 border-neon-green text-neon-green font-bold shadow-[0_0_8px_rgba(163,230,53,0.1)]' 
-                    : 'bg-slate-950 border border-slate-800 text-slate-600'
+                    ? 'bg-neon-green/15 border border-neon-green/45 text-neon-green font-bold shadow-[0_0_8px_rgba(163,230,53,0.08)]' 
+                    : 'bg-slate-950 border border-slate-900 text-slate-600'
                 }`}
               >
                 {day.done ? (
-                  <span className="text-[10px] font-bold font-mono">OK</span>
+                  <span className="text-[9px] font-bold font-mono">OK</span>
                 ) : (
-                  <span className="text-xs font-mono font-medium opacity-40">-</span>
+                  <span className="text-[10px] font-mono font-medium opacity-40">-</span>
                 )}
               </div>
-              <span className="text-[9px] text-slate-500 font-mono text-center truncate w-full hidden sm:block">
-                {day.name}
-              </span>
             </div>
           ))}
-        </div>
-        <div className="mt-3 flex items-center gap-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-900">
-          <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
-          <p className="text-[11px] text-slate-400">
-            Você treinou <strong>3 dias</strong> desta semana. Continue assim! 🔥
-          </p>
         </div>
       </div>
     </div>

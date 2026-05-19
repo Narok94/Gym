@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   TrendingUp, Award, Calendar, Ruler, AlertCircle, Plus, 
   ChevronRight, History, Heart, User, Sparkles, Scale,
@@ -55,10 +55,19 @@ export default function PerfilTab({
   // Editing profile state
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(userProfile.name);
-  const [editHeight, setEditHeight] = useState(userProfile.height);
-  const [editWeight, setEditWeight] = useState(userProfile.currentWeight);
+  const [editHeight, setEditHeight] = useState(String(userProfile.height));
+  const [editWeight, setEditWeight] = useState(String(userProfile.currentWeight));
   const [editAvatarUrl, setEditAvatarUrl] = useState(userProfile.avatarUrl);
   const [editLevel, setEditLevel] = useState(userProfile.level);
+
+  // Sync edits state with profile updates
+  useEffect(() => {
+    setEditName(userProfile.name);
+    setEditHeight(String(userProfile.height));
+    setEditWeight(String(userProfile.currentWeight));
+    setEditAvatarUrl(userProfile.avatarUrl);
+    setEditLevel(userProfile.level);
+  }, [userProfile]);
 
   // Gallery view state
   const [isAddingPhoto, setIsAddingPhoto] = useState(false);
@@ -213,8 +222,8 @@ export default function PerfilTab({
             onClick={() => {
               setIsEditing(true);
               setEditName(userProfile.name);
-              setEditHeight(userProfile.height);
-              setEditWeight(userProfile.currentWeight);
+              setEditHeight(String(userProfile.height));
+              setEditWeight(String(userProfile.currentWeight));
               setEditAvatarUrl(userProfile.avatarUrl);
               setEditLevel(userProfile.level);
             }}
@@ -250,14 +259,18 @@ export default function PerfilTab({
           </div>
 
           {/* Bio Physical Metrics Panel */}
-          <div className="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-slate-800/60 text-center">
-            <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-850/40">
-              <span className="text-[10px] text-gray-500 block uppercase font-mono">Altura</span>
-              <span className="text-sm font-bold text-white font-mono">{userProfile.height} cm</span>
+          <div className="grid grid-cols-3 gap-2.5 mt-5 pt-4 border-t border-slate-800/60 text-center">
+            <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
+              <span className="text-[9px] text-gray-500 block uppercase font-mono">Altura</span>
+              <span className="text-xs font-bold text-white font-mono">{userProfile.height} cm</span>
             </div>
-            <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-850/40">
-              <span className="text-[10px] text-gray-500 block uppercase font-mono">Peso Atual</span>
-              <span className="text-sm font-bold text-neon-green font-mono">{userProfile.currentWeight} kg</span>
+            <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
+              <span className="text-[9px] text-gray-500 block uppercase font-mono">Peso Atual</span>
+              <span className="text-xs font-bold text-neon-green font-mono">{userProfile.currentWeight} kg</span>
+            </div>
+            <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
+              <span className="text-[9px] text-gray-500 block uppercase font-mono">Realizados</span>
+              <span className="text-xs font-bold text-white font-mono">{workoutHistory.length}</span>
             </div>
           </div>
         </div>
@@ -354,7 +367,7 @@ export default function PerfilTab({
                     type="number"
                     required
                     value={editHeight}
-                    onChange={(e) => setEditHeight(Number(e.target.value))}
+                    onChange={(e) => setEditHeight(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green text-white rounded-xl py-2 px-3 outline-none font-mono"
                   />
                 </div>
@@ -365,7 +378,7 @@ export default function PerfilTab({
                     step="0.1"
                     required
                     value={editWeight}
-                    onChange={(e) => setEditWeight(Number(e.target.value))}
+                    onChange={(e) => setEditWeight(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green text-white rounded-xl py-2 px-3 outline-none font-mono"
                   />
                 </div>
