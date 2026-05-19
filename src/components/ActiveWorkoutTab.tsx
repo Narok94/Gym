@@ -181,24 +181,26 @@ export default function ActiveWorkoutTab({
           </p>
         </div>
 
-        {/* Workout library templates list - Hidden for now as requested */}
-        {/*
-        <div className="space-y-3 pt-4 text-left max-w-md mx-auto">
+        {/* Workout library templates list - Unhidden so user can select their workout directly */}
+        <div className="space-y-3 pt-4 text-left max-w-sm mx-auto">
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-mono text-center mb-1">
+            Ou comece um dos seus Treinos salvos:
+          </p>
           {workoutTemplates.map((template) => (
             <div 
               key={template.id} 
-              className="bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl p-4 transition-all cursor-pointer group flex items-center justify-between"
+              className="bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-750 rounded-2xl p-4 transition-all cursor-pointer group flex items-center justify-between"
               onClick={() => onStartWorkout(template.id)}
             >
               <div className="space-y-1 pr-4">
                 <h3 className="text-sm font-display font-bold text-white group-hover:text-neon-green transition-colors">
                   {template.name}
                 </h3>
-                <p className="text-xs text-gray-500 font-medium">
-                  {template.exercises.map(e => e.exercise.name).slice(0, 3).join(', ')} ...
+                <p className="text-[11px] text-gray-400 font-medium line-clamp-1">
+                  {template.exercises.map(e => e.exercise.name).slice(0, 3).join(', ')}...
                 </p>
                 <div className="flex gap-2 pt-1">
-                  <span className="text-[10px] font-mono bg-slate-950 font-semibold px-2 py-0.5 rounded text-gray-400">
+                  <span className="text-[9px] font-mono bg-slate-950 font-semibold px-2 py-0.5 rounded text-gray-400">
                     {template.exercises.length} Exercícios
                   </span>
                 </div>
@@ -209,7 +211,6 @@ export default function ActiveWorkoutTab({
             </div>
           ))}
         </div>
-        */}
       </div>
     );
   }

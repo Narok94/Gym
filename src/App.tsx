@@ -569,24 +569,6 @@ export default function App() {
 
   return (
     <div className="w-full max-w-md min-h-screen bg-[#0b111e] text-slate-100 flex flex-col mx-auto relative border-x border-slate-900 shadow-2xl pb-24 overflow-x-hidden">
-      {/* Top Profile Header bar with Log out option */}
-      <header className="flex items-center justify-between px-4 py-3 bg-slate-950/40 border-b border-slate-900/60">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-neon-green/10 flex items-center justify-center text-neon-green border border-neon-green/20">
-            <User className="w-3.5 h-3.5" />
-          </div>
-          <span className="text-xs font-semibold text-slate-300 font-mono">ID: {userProfile.name}</span>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-red-400 font-semibold uppercase font-mono px-2 py-1 bg-slate-900/80 hover:bg-slate-950 rounded-lg border border-slate-800 hover:border-red-900/40 transition-all cursor-pointer"
-          title="Fazer Log out"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Sair</span>
-        </button>
-      </header>
-
       {/* Scrollable Container Content */}
       <main className="flex-1 overflow-y-auto px-4 pt-5 pb-8">
         {activeTab === 'dashboard' && (
@@ -632,6 +614,7 @@ export default function App() {
             onAddReminder={handleAddReminder}
             onDeleteReminder={handleDeleteReminder}
             onToggleReminder={handleToggleReminder}
+            onLogout={handleLogout}
           />
         )}
       </main>

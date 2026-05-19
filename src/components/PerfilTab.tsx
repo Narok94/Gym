@@ -33,6 +33,7 @@ interface PerfilTabProps {
   onAddReminder: (dayOfWeek: string, time: string, label: string) => void;
   onDeleteReminder: (id: string) => void;
   onToggleReminder: (id: string) => void;
+  onLogout: () => void;
 }
 
 export default function PerfilTab({
@@ -46,7 +47,8 @@ export default function PerfilTab({
   onResetAllData,
   onAddReminder,
   onDeleteReminder,
-  onToggleReminder
+  onToggleReminder,
+  onLogout
 }: PerfilTabProps) {
   // Stats
   const [newWeight, setNewWeight] = useState('');
@@ -845,7 +847,24 @@ export default function PerfilTab({
         )}
       </div>
 
-      {/* 5. CONFIGS & START-FROM-SCRATCH DANGER ZONE */}
+      {/* 5. SESSÃO / SAIR DA CONTA */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <h4 className="text-xs font-bold text-white">Sair do Tatu Gym</h4>
+            <p className="text-[10px] text-slate-400">Salvo no seu navegador de forma segura</p>
+          </div>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-red-400 text-[10px] font-bold font-mono rounded-xl border border-slate-800 hover:border-red-900/40 transition-all cursor-pointer select-none"
+          >
+            Sair da Conta 👋
+          </button>
+        </div>
+      </div>
+
+      {/* 6. CONFIGS & START-FROM-SCRATCH DANGER ZONE */}
       <div className="bg-slate-900 border border-red-500/15 rounded-2xl p-4 shadow-sm bg-red-500/5 space-y-3">
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4.5 h-4.5 text-red-400" />
