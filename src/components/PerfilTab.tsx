@@ -60,14 +60,16 @@ export default function PerfilTab({
   const [editAvatarUrl, setEditAvatarUrl] = useState(userProfile.avatarUrl);
   const [editLevel, setEditLevel] = useState(userProfile.level);
 
-  // Sync edits state with profile updates
+  // Sync edits state with profile updates only when NOT actively editing to avoid text field resets
   useEffect(() => {
-    setEditName(userProfile.name);
-    setEditHeight(String(userProfile.height));
-    setEditWeight(String(userProfile.currentWeight));
-    setEditAvatarUrl(userProfile.avatarUrl);
-    setEditLevel(userProfile.level);
-  }, [userProfile]);
+    if (!isEditing) {
+      setEditName(userProfile.name);
+      setEditHeight(String(userProfile.height));
+      setEditWeight(String(userProfile.currentWeight));
+      setEditAvatarUrl(userProfile.avatarUrl);
+      setEditLevel(userProfile.level);
+    }
+  }, [userProfile, isEditing]);
 
   // Gallery view state
   const [isAddingPhoto, setIsAddingPhoto] = useState(false);
