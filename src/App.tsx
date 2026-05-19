@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   LayoutGrid, Dumbbell, Compass, User, 
   CheckCircle2, Sparkles, Award, Star, TrendingUp,
-  Lock, KeyRound, Eye, EyeOff, AlertCircle, Sparkle, LogOut
+  Lock, KeyRound, Eye, EyeOff, AlertCircle, Sparkle, LogOut,
+  Camera, X
 } from 'lucide-react';
 
 import { 
@@ -39,6 +40,8 @@ export default function App() {
 
   // Accomplishment modal view overlay state
   const [showFinishOverlay, setShowFinishOverlay] = useState(false);
+  const [congratsPhoto, setCongratsPhoto] = useState<string | null>(null);
+  const congratsFileInputRef = useRef<HTMLInputElement>(null);
   const [lastFinishedWorkoutStats, setLastFinishedWorkoutStats] = useState<{
     name: string;
     duration: number;
@@ -291,6 +294,99 @@ export default function App() {
     setWorkoutHistory([]);
   };
 
+  // Update profile details (Name, photo, height, weight)
+  const handleUpdateProfile = (updatedData: {
+    name: string;
+    avatarUrl: string;
+    height: number;
+    currentWeight: number;
+    level: 'Iniciante' | 'Intermediário' | 'Avançado';
+  }) => {
+    setUserProfile((prev) => {
+      const weightHistory = [...(prev.weightHistory || [])];
+      // If weight changed, add it as a historical point
+      if (updatedData.currentWeight !== prev.currentWeight) {
+        const formattedDate = new Date().toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+        const capitalizedMonth = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+        weightHistory.push({
+          date: capitalizedMonth,
+          weight: updatedData.currentWeight
+        });
+      }
+      return {
+        ...prev,
+        ...updatedData,
+        weightHistory: weightHistory.slice(-6)
+      };
+    });
+  };
+
+  // Add a base64 / URL photo to progress gallery
+  const handleAddGalleryPhoto = (photoBase64OrUrl: string) => {
+    setUserProfile((prev) => ({
+      ...prev,
+      photos: [photoBase64OrUrl, ...(prev.photos || [])]
+    }));
+  };
+
+  // Delete a specific photo from progress gallery
+  const handleDeleteGalleryPhoto = (photoUrl: string) => {
+    setUserProfile((prev) => ({
+      ...prev,
+      photos: (prev.photos || []).filter(item => item !== photoUrl)
+    }));
+  };
+
+  // Add a workout reminder schedule
+  const handleAddReminder = (dayOfWeek: string, time: string, label: string) => {
+    setUserProfile((prev) => ({
+      ...prev,
+      reminders: [
+        ...(prev.reminders || []),
+        {
+          id: `reminder-${Date.now()}`,
+          dayOfWeek,
+          time,
+          label: label.trim(),
+          isActive: true
+        }
+      ]
+    }));
+  };
+
+  // Delete a workout reminder schedule
+  const handleDeleteReminder = (id: string) => {
+    setUserProfile((prev) => ({
+      ...prev,
+      reminders: (prev.reminders || []).filter(r => r.id !== id)
+    }));
+  };
+
+  // Toggle active state of a reminder
+  const handleToggleReminder = (id: string) => {
+    setUserProfile((prev) => ({
+      ...prev,
+      reminders: (prev.reminders || []).map(r => r.id === id ? { ...r, isActive: !r.isActive } : r)
+    }));
+  };
+
+  // Reset stats & progress to start completely from scratch (Zerar tudo)
+  const handleResetAllData = () => {
+    setUserProfile({
+      name: 'Henrique Silva',
+      avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
+      level: 'Iniciante',
+      streakDays: 0,
+      height: 180,
+      currentWeight: 80.0,
+      weightHistory: [],
+      photos: [],
+      reminders: []
+    });
+    setWorkoutHistory([]);
+    setActiveWorkout(null);
+  };
+
   // IF NOT AUTHENTICATED, RENDER LOGIN VIEW
   if (!isAuthenticated) {
     return (
@@ -454,6 +550,13 @@ export default function App() {
             workoutHistory={workoutHistory}
             onAddWeightRecord={handleAddWeightRecord}
             onClearHistory={handleClearHistory}
+            onUpdateProfile={handleUpdateProfile}
+            onAddGalleryPhoto={handleAddGalleryPhoto}
+            onDeleteGalleryPhoto={handleDeleteGalleryPhoto}
+            onResetAllData={handleResetAllData}
+            onAddReminder={handleAddReminder}
+            onDeleteReminder={handleDeleteReminder}
+            onToggleReminder={handleToggleReminder}
           />
         )}
       </main>
@@ -542,16 +645,67 @@ export default function App() {
               </div>
             </div>
 
+            {/* Take Post-workout photo pump */}
+            <div className="bg-slate-950/40 border border-slate-800 p-3.5 rounded-2xl space-y-2 text-left">
+              <span className="text-[9px] uppercase font-mono tracking-widest text-[#a3e635] font-bold block">📸 Registrar Pump do Treino</span>
+              
+              {congratsPhoto ? (
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner">
+                  <img src={congratsPhoto} className="w-full h-full object-cover" alt="Pump" referrerPolicy="no-referrer" />
+                  <button
+                    type="button"
+                    onClick={() => setCongratsPhoto(null)}
+                    className="absolute top-2 right-2 bg-black/70 hover:bg-red-900 border border-slate-800 text-white rounded-full p-1.5 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => congratsFileInputRef.current?.click()}
+                    className="w-full bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-neon-green/30 text-xs text-white py-2.5 px-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold font-sans"
+                  >
+                    <Camera className="w-4 h-4 text-neon-green animate-pulse" />
+                    <span>Tirar Foto de Agora</span>
+                  </button>
+                  <input
+                    type="file"
+                    ref={congratsFileInputRef}
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          if (typeof reader.result === 'string') {
+                            setCongratsPhoto(reader.result);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => {
+                if (congratsPhoto) {
+                  handleAddGalleryPhoto(congratsPhoto);
+                  setCongratsPhoto(null);
+                }
                 setShowFinishOverlay(false);
                 setLastFinishedWorkoutStats(null);
-                setActiveTab('profile'); // Send them to the history to see logs
+                setActiveTab('profile'); // Send them to the profile to view the gallery
               }}
-              className="w-full bg-neon-green text-slate-950 font-display font-extrabold rounded-xl py-3 text-sm hover:bg-lime-500 transition-colors cursor-pointer shadow-lg shadow-lime-500/10"
+              className="w-full bg-neon-green text-slate-950 font-display font-extrabold rounded-xl py-3 text-sm hover:bg-lime-500 transition-colors cursor-pointer shadow-lg shadow-lime-500/10 uppercase tracking-wider"
               id="btn-close-finish-overlay"
             >
-              Ver meu Histórico ⚡
+              Concluir & Ir para a Galeria ⚡
             </button>
           </div>
         </div>

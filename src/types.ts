@@ -55,4 +55,14 @@ export interface UserProfile {
   height: number; // cm
   currentWeight: number; // kg
   weightHistory: WeightRecord[];
+  photos?: string[]; // list of workout gallery photos
+  reminders?: WorkoutReminder[]; // list of workout reminders
+}
+
+export interface WorkoutReminder {
+  id: string;
+  dayOfWeek: string; // e.g., 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'
+  time: string;      // e.g., '18:30'
+  label: string;     // custom tag e.g. "Treino de Peito"
+  isActive: boolean;
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Pause, RefreshCw, Sparkles, Flame, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, RefreshCw, Sparkles, Flame, CheckCircle2, Dumbbell } from 'lucide-react';
 import { Exercise } from '../types';
 
 interface ExerciseGifPlayerProps {
@@ -344,9 +344,26 @@ export default function ExerciseGifPlayer({ exercise }: ExerciseGifPlayerProps) 
         {/* Animated grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:24px_24px] opacity-10"></div>
         
+        {/* Custom barbell rep simulation overlay */}
+        {isPlaying && (
+          <div className="absolute z-20 flex flex-col items-center justify-center pointer-events-none">
+            <style>{`
+              @keyframes lift {
+                0%, 100% { transform: translateY(14px); }
+                50% { transform: translateY(-14px); }
+              }
+              .animate-lift {
+                animation: lift 2.5s ease-in-out infinite;
+              }
+            `}</style>
+            <Dumbbell className="w-10 h-10 text-neon-green drop-shadow-[0_0_12px_rgba(163,230,53,0.65)] animate-lift" />
+            <span className="text-[8px] font-mono text-neon-green/90 font-bold tracking-widest mt-2 bg-slate-950/90 px-2.5 py-0.5 rounded-full border border-neon-green/20 uppercase">LOOP DE EXECUÇÃO</span>
+          </div>
+        )}
+
         {/* Real-time moving visual overlay representing the exercise movement trajectory (A visual simulation helper) */}
         {isPlaying ? (
-          <div className="absolute inset-0 flex flex-col justify-end p-3 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/20 z-10 transition-all pointer-events-none">
+          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-3 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent z-10 transition-all pointer-events-none">
             {/* Visual contracting bar simulating the weight motion */}
             <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
               <div 
@@ -368,6 +385,7 @@ export default function ExerciseGifPlayer({ exercise }: ExerciseGifPlayerProps) 
         ) : (
           <div className="absolute inset-0 bg-slate-950/80 z-20 flex flex-col items-center justify-center transition-all">
             <button 
+              type="button"
               onClick={() => setIsPlaying(true)}
               className="w-12 h-12 rounded-full bg-neon-green text-slate-950 flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer"
             >
@@ -383,15 +401,12 @@ export default function ExerciseGifPlayer({ exercise }: ExerciseGifPlayerProps) 
             src={visualData.gifUrl} 
             alt={exercise.name}
             className={`w-full h-full object-cover select-none pointer-events-none transition-all duration-1000 ${
-              isPlaying ? 'scale-105 brightness-[0.70] contrast-125' : 'scale-100 brightness-[0.40] contrast-100'
+              isPlaying ? 'scale-105 brightness-[0.70] contrast-110' : 'scale-100 brightness-[0.40] contrast-100'
             }`}
-            style={{
-              animation: isPlaying ? 'pulse 2.5s ease-in-out infinite' : 'none'
-            }}
             referrerPolicy="no-referrer"
           />
           {/* Neon overlay */}
-          <div className={`absolute inset-0 bg-gradient-to-b ${visualData.fallbackColor} mix-blend-color-dodge opacity-60`}></div>
+          <div className="absolute inset-0 bg-slate-950/50"></div>
         </div>
 
         {/* Wireframe anatomical motion tracker in corner */}

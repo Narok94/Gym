@@ -245,6 +245,15 @@ export const MOCK_USER_PROFILE: UserProfile = {
     { date: 'Mar', weight: 83.5 },
     { date: 'Abr', weight: 82.8 },
     { date: 'Mai', weight: 81.2 }
+  ],
+  photos: [
+    'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=400',
+    'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&q=80&w=400'
+  ],
+  reminders: [
+    { id: 'rem-1', dayOfWeek: 'Segunda', time: '18:30', label: 'Esmagar Peito (Treino A)', isActive: true },
+    { id: 'rem-2', dayOfWeek: 'Quarta', time: '19:00', label: 'Foco em Costas (Treino B)', isActive: true },
+    { id: 'rem-3', dayOfWeek: 'Sexta', time: '18:00', label: 'Leg Day Hardcore (Treino C)', isActive: true }
   ]
 };
 
