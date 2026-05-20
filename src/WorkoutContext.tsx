@@ -186,13 +186,28 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       id: `active-${Date.now()}`,
       isCompleted: false,
       startTime: new Date().toISOString(),
-      exercises: template.exercises.map((we) => ({
-        ...we,
-        sets: we.sets.map((s) => ({
-          ...s,
-          isCompleted: false
-        }))
-      }))
+      exercises: template.exercises.map((we) => {
+        const storedLoadsStr = localStorage.getItem(`tatu_last_loads_ex_${we.exercise.id}`);
+        let preloadedWeights: number[] = [];
+        if (storedLoadsStr) {
+          try {
+            preloadedWeights = JSON.parse(storedLoadsStr);
+          } catch (e) {
+            console.error('Error parsing stored loads', e);
+          }
+        }
+        return {
+          ...we,
+          sets: we.sets.map((s, idx) => {
+            const historicalWeight = preloadedWeights[idx] !== undefined ? preloadedWeights[idx] : s.weight;
+            return {
+              ...s,
+              weight: historicalWeight,
+              isCompleted: false
+            };
+          })
+        };
+      })
     };
 
     setActiveWorkout(clonedWorkout);
@@ -215,14 +230,21 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const updatedExercises = activeWorkout.exercises.map((we) => {
       if (we.id === exerciseId) {
+        const targetExerciseId = we.exercise.id;
+        const updatedSets = we.sets.map((set) => {
+          if (set.id === setId) {
+            return { ...set, weight, reps, isCompleted };
+          }
+          return set;
+        });
+
+        // Save weight configuration whenever a set is checked or config updated
+        const weights = updatedSets.map(s => s.weight);
+        localStorage.setItem(`tatu_last_loads_ex_${targetExerciseId}`, JSON.stringify(weights));
+
         return {
           ...we,
-          sets: we.sets.map((set) => {
-            if (set.id === setId) {
-              return { ...set, weight, reps, isCompleted };
-            }
-            return set;
-          })
+          sets: updatedSets
         };
       }
       return we;
@@ -288,6 +310,22 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const handleAddExerciseToActive = (exercise: Exercise) => {
+    const storedLoadsStr = localStorage.getItem(`tatu_last_loads_ex_${exercise.id}`);
+    let preloadedWeights: number[] = [];
+    if (storedLoadsStr) {
+      try {
+        preloadedWeights = JSON.parse(storedLoadsStr);
+      } catch (e) {
+        console.error('Error parsing stored loads', e);
+      }
+    }
+
+    const defaultSets = [
+      { id: `s-${Date.now()}-1`, setNumber: 1, weight: preloadedWeights[0] !== undefined ? preloadedWeights[0] : 10, reps: 10, isCompleted: false },
+      { id: `s-${Date.now()}-2`, setNumber: 2, weight: preloadedWeights[1] !== undefined ? preloadedWeights[1] : 10, reps: 10, isCompleted: false },
+      { id: `s-${Date.now()}-3`, setNumber: 3, weight: preloadedWeights[2] !== undefined ? preloadedWeights[2] : 10, reps: 10, isCompleted: false }
+    ];
+
     if (!activeWorkout) {
       const emptySession: WorkoutSession = {
         id: `active-${Date.now()}`,
@@ -297,11 +335,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         exercises: [{
           id: `we-${Date.now()}`,
           exercise: exercise,
-          sets: [
-            { id: `s-${Date.now()}-1`, setNumber: 1, weight: 10, reps: 10, isCompleted: false },
-            { id: `s-${Date.now()}-2`, setNumber: 2, weight: 10, reps: 10, isCompleted: false },
-            { id: `s-${Date.now()}-3`, setNumber: 3, weight: 10, reps: 10, isCompleted: false }
-          ]
+          sets: defaultSets
         }]
       };
       setActiveWorkout(emptySession);
@@ -312,11 +346,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const newWorkoutExercise = {
       id: `we-${Date.now()}`,
       exercise: exercise,
-      sets: [
-        { id: `s-${Date.now()}-1`, setNumber: 1, weight: 10, reps: 10, isCompleted: false },
-        { id: `s-${Date.now()}-2`, setNumber: 2, weight: 10, reps: 10, isCompleted: false },
-        { id: `s-${Date.now()}-3`, setNumber: 3, weight: 10, reps: 10, isCompleted: false }
-      ]
+      sets: defaultSets
     };
 
     setActiveWorkout({
@@ -448,7 +478,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleResetAllData = () => {
     setUserProfile({
-      name: 'Henrique Silva',
+      name: 'Henrique Lúcio da Costa',
       avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
       level: 'Iniciante',
       gender: 'male',

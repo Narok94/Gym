@@ -6,6 +6,7 @@ export interface Exercise {
   category: MuscleGroup;
   description?: string;
   imageUrl?: string;
+  gifUrl?: string;
 }
 
 export interface ExerciseSet {
@@ -21,6 +22,9 @@ export interface WorkoutExercise {
   exercise: Exercise;
   sets: ExerciseSet[];
   notes?: string;
+  method?: string;
+  interval?: string;
+  loadText?: string;
 }
 
 export interface WorkoutSession {

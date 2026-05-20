@@ -24,10 +24,97 @@ export const COMPREHENSIVE_EXERCISES: Exercise[] = [
   { id: 'ex-flexora', name: 'Mesa ou Cadeira Flexora', category: 'Pernas', description: 'Foco no isolamento de posteriores de coxa.' },
   { id: 'ex-panturrilha-cavalinho', name: 'Panturrilha Sentado (Cavalinho)', category: 'Pernas', description: 'Realizar alongamento completo e contração máxima.' },
   { id: 'ex-abdominal-infra', name: 'Abdominal Infra (Solo)', category: 'Abdômen', description: 'Elevação de pernas controlada sem balançar o quadril.' },
-  { id: 'ex-prancha', name: 'Prancha Abdominal', category: 'Abdômen', description: 'Se incomodar o ombro, substituir pelo Abdominal Infra.' }
+  { id: 'ex-prancha', name: 'Prancha Abdominal', category: 'Abdômen', description: 'Se incomodar o ombro, substituir pelo Abdominal Infra.' },
+
+  // Treino de Alana Souza Adh
+  { id: 'ex-alana-abd-infra-solo', name: 'Abdomen infra no solo', category: 'Abdômen', description: 'Elevação de pernas deitada no colchonete.', gifUrl: 'https://raw.githubusercontent.com/hollyood-caribe/tatugym/main/gifs/abdomen-infra-solo.gif' },
+  { id: 'ex-alana-abd-infra-banco', name: 'Abdomen Infra no Banco', category: 'Abdômen', description: 'Elevação de pernas com apoio lombar inclinado.', gifUrl: 'https://raw.githubusercontent.com/hollyood-caribe/tatugym/main/gifs/abdomen-infra-banco.gif' },
+  { id: 'ex-alana-supino-inc', name: 'Supino Inclinado', category: 'Peito', description: 'Ativação das fibras claviculares do peitoral.', gifUrl: 'https://raw.githubusercontent.com/hollyood-caribe/tatugym/main/gifs/supino-inclinado.gif' },
+  { id: 'ex-alana-crucifixo-adutor', name: 'Crucifixo Adutor na Polia', category: 'Peito', description: 'Cruzamento de cabos focado em miolo de peito.', gifUrl: 'https://raw.githubusercontent.com/hollyood-caribe/tatugym/main/gifs/crucifixo-adutor.gif' },
+  { id: 'ex-alana-triceps-testa', name: 'Tríceps Testa', category: 'Braços', description: 'Extensão de cotovelos deitada com halteres.', gifUrl: 'https://raw.githubusercontent.com/hollyood-caribe/tatugym/main/gifs/triceps-testa.gif' },
+  { id: 'ex-alana-triceps-mergulho', name: 'Tríceps Mergulho', category: 'Braços', description: 'Mergulho de tríceps em apoio elevado/banco.', gifUrl: 'https://raw.githubusercontent.com/hollyood-caribe/tatugym/main/gifs/triceps-mergulho.gif' }
 ];
 
 export const WORKOUT_TEMPLATES: WorkoutSession[] = [
+  {
+    id: 'workout-alana',
+    name: 'Ficha Superior e Abdominal Avançado',
+    isCompleted: false,
+    exercises: [
+      {
+        id: 'we-al1',
+        exercise: { id: 'ex-alana-abd-infra-solo', name: 'Abdomen infra no solo', category: 'Abdômen', description: 'Elevação de pernas deitada no colchonete.' },
+        sets: [
+          { id: 'sal1-1', setNumber: 1, weight: 0, reps: 10, isCompleted: false },
+          { id: 'sal1-2', setNumber: 2, weight: 0, reps: 10, isCompleted: false },
+          { id: 'sal1-3', setNumber: 3, weight: 0, reps: 10, isCompleted: false }
+        ],
+        method: 'Rest-pause 3 de 10x',
+        interval: 'Intervalo 30',
+        loadText: 'Carga Peso Corporal'
+      },
+      {
+        id: 'we-al2',
+        exercise: { id: 'ex-alana-abd-infra-banco', name: 'Abdomen Infra no Banco', category: 'Abdômen', description: 'Elevação de pernas com apoio lombar inclinado.' },
+        sets: [
+          { id: 'sal2-1', setNumber: 1, weight: 0, reps: 10, isCompleted: false },
+          { id: 'sal2-2', setNumber: 2, weight: 0, reps: 10, isCompleted: false },
+          { id: 'sal2-3', setNumber: 3, weight: 0, reps: 10, isCompleted: false }
+        ],
+        method: 'Rotina Alta/Baixa 3 de 10',
+        interval: 'Intervalo 30',
+        loadText: 'Carga Livre'
+      },
+      {
+        id: 'we-al3',
+        exercise: { id: 'ex-alana-supino-inc', name: 'Supino Inclinado', category: 'Peito', description: 'Ativação das fibras claviculares do peitoral.' },
+        sets: [
+          { id: 'sal3-1', setNumber: 1, weight: 30, reps: 10, isCompleted: false },
+          { id: 'sal3-2', setNumber: 2, weight: 30, reps: 10, isCompleted: false },
+          { id: 'sal3-3', setNumber: 3, weight: 30, reps: 10, isCompleted: false }
+        ],
+        method: 'Piram. Cresc. 3 de 10x',
+        interval: 'Intervalo 40',
+        loadText: 'Carga 30kg'
+      },
+      {
+        id: 'we-al4',
+        exercise: { id: 'ex-alana-crucifixo-adutor', name: 'Crucifixo Adutor na Polia', category: 'Peito', description: 'Cruzamento de cabos focado em miolo de peito.' },
+        sets: [
+          { id: 'sal4-1', setNumber: 1, weight: 6, reps: 10, isCompleted: false },
+          { id: 'sal4-2', setNumber: 2, weight: 6, reps: 10, isCompleted: false },
+          { id: 'sal4-3', setNumber: 3, weight: 6, reps: 10, isCompleted: false }
+        ],
+        method: 'Bi-set 3 de 10x',
+        interval: 'Intervalo 20',
+        loadText: 'Carga 6 barras'
+      },
+      {
+        id: 'we-al5',
+        exercise: { id: 'ex-alana-triceps-testa', name: 'Tríceps Testa', category: 'Braços', description: 'Extensão de cotovelos deitada com halteres.' },
+        sets: [
+          { id: 'sal5-1', setNumber: 1, weight: 10, reps: 20, isCompleted: false },
+          { id: 'sal5-2', setNumber: 2, weight: 10, reps: 20, isCompleted: false },
+          { id: 'sal5-3', setNumber: 3, weight: 10, reps: 20, isCompleted: false }
+        ],
+        method: 'Piram. Decresc. 3 de 20x',
+        interval: 'Intervalo 40',
+        loadText: 'Carga 10kg'
+      },
+      {
+        id: 'we-al6',
+        exercise: { id: 'ex-alana-triceps-mergulho', name: 'Tríceps Mergulho', category: 'Braços', description: 'Mergulho de tríceps em apoio elevado/banco.' },
+        sets: [
+          { id: 'sal6-1', setNumber: 1, weight: 0, reps: 12, isCompleted: false },
+          { id: 'sal6-2', setNumber: 2, weight: 0, reps: 12, isCompleted: false },
+          { id: 'sal6-3', setNumber: 3, weight: 0, reps: 12, isCompleted: false }
+        ],
+        method: 'Rotina Alta/Baixa 3 de 12',
+        interval: 'Intervalo 40',
+        loadText: 'Carga Peso Corporal'
+      }
+    ]
+  },
   {
     id: 'workout-a',
     name: 'Treino A - Empurre',
@@ -235,7 +322,7 @@ export const WORKOUT_TEMPLATES: WorkoutSession[] = [
 ];
 
 export const MOCK_USER_PROFILE: UserProfile = {
-  name: 'Henrique Silva',
+  name: 'Henrique Lúcio da Costa',
   avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
   level: 'Intermediário',
   gender: 'male',

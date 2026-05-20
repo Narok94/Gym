@@ -76,17 +76,59 @@ export default function App() {
   // Handle Login Authentication
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (userLogin.trim().toLowerCase() === 'henrique' && passLogin === '9860') {
+    const loginClean = userLogin.trim().toLowerCase();
+    if ((loginClean === 'henrique' || loginClean === 'alana' || loginClean === 'maria' || loginClean === 'ana') && passLogin === '9860') {
       setIsAuthenticated(true);
       setLoginError('');
-      // Update profile with gender: 'male' if not specified
-      setUserProfile((prev) => ({
-        ...prev,
-        name: 'Henrique Silva',
-        gender: prev.gender || 'male'
-      }));
+      if (loginClean === 'alana' || loginClean === 'maria' || loginClean === 'ana') {
+        setUserProfile({
+          name: 'Alana Souza Adh',
+          avatarUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=200&auto=format&fit=crop',
+          level: 'Avançado',
+          gender: 'female',
+          streakDays: 7,
+          height: 165,
+          currentWeight: 59.5,
+          weightHistory: [
+            { date: 'Mar', weight: 61.2 },
+            { date: 'Abr', weight: 60.4 },
+            { date: 'Mai', weight: 59.5 }
+          ],
+          photos: [
+            'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=400'
+          ],
+          reminders: [
+            { id: 'rem-al1', dayOfWeek: 'Terça', time: '17:00', label: 'Treino de Superiores (Alana)', isActive: true },
+            { id: 'rem-al2', dayOfWeek: 'Quinta', time: '17:00', label: 'Treino de Quadríceps (Alana)', isActive: true }
+          ]
+        });
+      } else {
+        setUserProfile({
+          name: 'Henrique Lúcio da Costa',
+          avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
+          level: 'Intermediário',
+          gender: 'male',
+          streakDays: 4,
+          height: 180,
+          currentWeight: 81.2,
+          weightHistory: [
+            { date: 'Mar', weight: 83.5 },
+            { date: 'Abr', weight: 82.8 },
+            { date: 'Mai', weight: 81.2 }
+          ],
+          photos: [
+            'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&q=80&w=400'
+          ],
+          reminders: [
+            { id: 'rem-1', dayOfWeek: 'Segunda', time: '18:30', label: 'Esmagar Peito (Treino A)', isActive: true },
+            { id: 'rem-2', dayOfWeek: 'Quarta', time: '19:00', label: 'Foco em Costas (Treino B)', isActive: true },
+            { id: 'rem-3', dayOfWeek: 'Sexta', time: '18:00', label: 'Leg Day Hardcore (Treino C)', isActive: true }
+          ]
+        });
+      }
     } else {
-      setLoginError('Credenciais inválidas. Use usuario: henrique e senha: 9860');
+      setLoginError('Credenciais inválidas. Use usuario: henrique ou alana e senha: 9860');
     }
   };
 
@@ -101,7 +143,7 @@ export default function App() {
 
   // IF NOT AUTHENTICATED, RENDER LOGIN VIEW
   if (!isAuthenticated) {
-    const isFemalePreview = userLogin.trim().toLowerCase() === 'maria' || userLogin.trim().toLowerCase() === 'ana';
+    const isFemalePreview = userLogin.trim().toLowerCase() === 'alana' || userLogin.trim().toLowerCase() === 'maria' || userLogin.trim().toLowerCase() === 'ana';
     const previewTextPlain = isFemalePreview ? 'text-pink-500' : 'text-blue-400';
     const previewBg = isFemalePreview ? 'bg-pink-600 hover:bg-pink-500' : 'bg-blue-600 hover:bg-blue-500';
     const previewRing = isFemalePreview ? 'focus:ring-pink-500 focus:border-pink-500' : 'focus:ring-blue-500 focus:border-blue-500';
@@ -184,24 +226,34 @@ export default function App() {
           </form>
 
           {/* Quick instructions & tip for Sandbox grading reviewers */}
-          <div className="bg-slate-950/40 border border-slate-900 rounded-2xl p-4 text-center space-y-1 backdrop-blur-sm">
+          <div className="bg-slate-950/40 border border-slate-900 rounded-2xl p-4 text-center space-y-1.5 backdrop-blur-sm">
             <p className={`text-[10px] uppercase tracking-wider font-mono ${previewTextPlain} font-bold`}>Dica de Acesso Rápido</p>
             <p className="text-xs text-gray-400">
-              Usuário: <strong className="text-white">henrique</strong>
+              Usuários: <strong className="text-white">henrique</strong> ou <strong className="text-white">alana</strong>
             </p>
             <p className="text-xs text-gray-400">
-              Senha: <strong className="text-white">9860</strong>
+              Senha única: <strong className="text-white">9860</strong>
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-1.5 items-center">
               <button 
                 type="button"
                 onClick={() => {
                   setUserLogin('henrique');
                   setPassLogin('9860');
                 }}
-                className={`text-[10px] ${previewTextPlain} hover:underline cursor-pointer font-bold`}
+                className={`text-[11.5px] font-sans text-blue-400 hover:underline cursor-pointer font-bold`}
               >
-                Preencher Henrique (Masculino)
+                Preencher Henrique (Masculino • Azul)
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setUserLogin('alana');
+                  setPassLogin('9860');
+                }}
+                className={`text-[11.5px] font-sans text-pink-400 hover:underline cursor-pointer font-bold`}
+              >
+                Preencher Alana (Feminino • Rosa)
               </button>
             </div>
           </div>
@@ -252,55 +304,57 @@ export default function App() {
       </main>
 
       {/* Floating Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-950/90 backdrop-blur-xl border-t border-slate-900 py-2.5 z-40 px-5 flex items-center justify-between shadow-2xl">
-        <button
-          onClick={() => setActiveTab('dashboard')}
-          className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
-            activeTab === 'dashboard' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
-          }`}
-          id="nav-tab-dashboard"
-        >
-          <LayoutGrid className="w-5 h-5" />
-          <span className="text-[10px] tracking-wide font-sans">Dashboard</span>
-        </button>
+      {!(activeWorkout && activeTab === 'active-workout') && (
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-950/90 backdrop-blur-xl border-t border-slate-900 py-2.5 z-40 px-5 flex items-center justify-between shadow-2xl">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
+              activeTab === 'dashboard' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+            }`}
+            id="nav-tab-dashboard"
+          >
+            <LayoutGrid className="w-5 h-5" />
+            <span className="text-[10px] tracking-wide font-sans">Dashboard</span>
+          </button>
 
-        <button
-          onClick={() => setActiveTab('active-workout')}
-          className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 relative ${
-            activeTab === 'active-workout' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
-          }`}
-          id="nav-tab-active-workout"
-        >
-          {/* Active Workout Notification Dot */}
-          {activeWorkout && (
-            <span className={`absolute top-1 right-5 w-2.5 h-2.5 ${isFemale ? 'bg-pink-500' : 'bg-blue-550'} border border-slate-950 rounded-full animate-ping`}></span>
-          )}
-          <Dumbbell className="w-5 h-5" />
-          <span className="text-[10px] tracking-wide font-sans">Treino Ativo</span>
-        </button>
+          <button
+            onClick={() => setActiveTab('active-workout')}
+            className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 relative ${
+              activeTab === 'active-workout' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+            }`}
+            id="nav-tab-active-workout"
+          >
+            {/* Active Workout Notification Dot */}
+            {activeWorkout && (
+              <span className={`absolute top-1 right-5 w-2.5 h-2.5 ${isFemale ? 'bg-pink-500' : 'bg-blue-550'} border border-slate-950 rounded-full animate-ping`}></span>
+            )}
+            <Dumbbell className="w-5 h-5" />
+            <span className="text-[10px] tracking-wide font-sans">Treino Ativo</span>
+          </button>
 
-        <button
-          onClick={() => setActiveTab('exercises')}
-          className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
-            activeTab === 'exercises' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
-          }`}
-          id="nav-tab-exercises"
-        >
-          <Compass className="w-5 h-5" />
-          <span className="text-[10px] tracking-wide font-sans">Exercícios</span>
-        </button>
+          <button
+            onClick={() => setActiveTab('exercises')}
+            className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
+              activeTab === 'exercises' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+            }`}
+            id="nav-tab-exercises"
+          >
+            <Compass className="w-5 h-5" />
+            <span className="text-[10px] tracking-wide font-sans">Exercícios</span>
+          </button>
 
-        <button
-          onClick={() => setActiveTab('profile')}
-          className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
-            activeTab === 'profile' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
-          }`}
-          id="nav-tab-profile"
-        >
-          <User className="w-5 h-5" />
-          <span className="text-[10px] tracking-wide font-sans">Perfil</span>
-        </button>
-      </nav>
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
+              activeTab === 'profile' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+            }`}
+            id="nav-tab-profile"
+          >
+            <User className="w-5 h-5" />
+            <span className="text-[10px] tracking-wide font-sans">Perfil</span>
+          </button>
+        </nav>
+      )}
 
       {/* SUCCESS OVERLAY ALERT (Opened when user completes a workout) */}
       {showFinishOverlay && lastFinishedWorkoutStats && (

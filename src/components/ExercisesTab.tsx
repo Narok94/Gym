@@ -62,7 +62,7 @@ export default function ExercisesTab({
           placeholder="Pesquise por Rosca, Supino, Agachamento..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-sm rounded-xl py-3 pl-10 pr-4 outline-none focus:border-neon-green focus:ring-1 focus:ring-neon-green transition-all"
+          className="w-full bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-sm rounded-xl py-3 pl-10 pr-4 outline-none focus:border-[#0055ff] focus:ring-1 focus:ring-[#0055ff] transition-all"
         />
         {searchQuery && (
           <button 
@@ -85,7 +85,7 @@ export default function ExercisesTab({
               onClick={() => setSelectedMuscle(muscle)}
               className={`px-4 py-2 text-xs font-semibold rounded-full shrink-0 transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-neon-green text-slate-950 px-5 shadow-[0_0_12px_rgba(163,230,53,0.25)] font-bold'
+                  ? 'bg-[#0055ff] text-white px-5 shadow-[0_0_12px_rgba(0,85,255,0.4)] font-bold'
                   : 'bg-slate-900/80 hover:bg-slate-850 text-gray-400 border border-slate-850 hover:text-white'
               }`}
             >
@@ -122,7 +122,7 @@ export default function ExercisesTab({
                   onClick={() => handleToggleExpand(ex.id)}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-neon-green/80">
+                    <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-[#0055ff]">
                       <Dumbbell className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 pr-1">
@@ -139,8 +139,8 @@ export default function ExercisesTab({
                         onClick={() => handleQuickAdd(ex)}
                         className={`text-[11px] font-bold py-1 px-2.5 rounded-lg flex items-center gap-1 transition-all ${
                           isAddedFeedback 
-                            ? 'bg-neon-green text-slate-950 animate-pulse' 
-                            : 'bg-slate-950 hover:bg-slate-850 border border-slate-800 text-neon-green hover:border-neon-green/45'
+                            ? 'bg-[#0055ff] text-white animate-pulse' 
+                            : 'bg-slate-950 hover:bg-slate-850 border border-slate-800 text-[#0055ff] hover:border-[#0055ff]/45'
                         }`}
                         title="Adicionar ao treino atual"
                       >
@@ -151,7 +151,7 @@ export default function ExercisesTab({
                           </>
                         ) : (
                           <>
-                            <PlusCircle className="w-3.5 h-3.5 text-neon-green" />
+                            <PlusCircle className="w-3.5 h-3.5 text-[#0055ff]" />
                             <span>Adicionar</span>
                           </>
                         )}
@@ -160,7 +160,7 @@ export default function ExercisesTab({
                     <button
                       type="button"
                       onClick={() => handleToggleExpand(ex.id)}
-                      className={`text-slate-500 hover:text-white p-1 rounded-full transition-transform ${isExpanded ? 'rotate-180 text-neon-green' : ''}`}
+                      className={`text-slate-500 hover:text-white p-1 rounded-full transition-transform ${isExpanded ? 'rotate-180 text-[#0055ff]' : ''}`}
                     >
                       <Info className="w-4 h-4" />
                     </button>

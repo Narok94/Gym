@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Eye, ChevronDown, ChevronUp, Check, Scale, Flame, Dumbbell } from 'lucide-react';
+import { Trash2, Plus, Eye, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { WorkoutExercise } from '../types';
 import { useWorkout } from '../WorkoutContext';
-import ExerciseGifPlayer from './ExerciseGifPlayer';
 
 // Synthesize a beautiful, polite upward electronic chime using the Web Audio API
 const playCompletionSound = () => {
@@ -49,7 +48,6 @@ const InlineActiveRestTimer: React.FC<InlineActiveRestTimerProps> = ({
   getTimerRemaining,
   onUpdateTimer
 }) => {
-  const { isFemale } = useWorkout();
   const [seconds, setSeconds] = useState(() => getTimerRemaining(setId));
 
   // Sync with background ticking or visibility changes
@@ -99,43 +97,36 @@ const InlineActiveRestTimer: React.FC<InlineActiveRestTimerProps> = ({
     onSkip();
   };
 
-  // Theme-aware local properties
-  const timerCircleBorder = isFemale ? 'border-pink-500/75 shadow-[0_0_12px_rgba(244,63,94,0.3)]' : 'border-blue-500/80 shadow-[0_0_12px_rgba(59,130,246,0.3)]';
-  const timerTextColor = isFemale ? 'text-pink-400' : 'text-blue-400 font-extrabold';
-  const timerTitleClass = isFemale ? 'text-pink-400' : 'text-blue-400 font-black';
-  const skipButtonBg = isFemale ? 'bg-pink-650 hover:bg-pink-550 shadow-pink-900/30' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/30';
-
   return (
-    <div className="bg-[#101b2f] border border-[#1d3251] rounded-2xl p-4 my-2.5 flex items-center justify-between gap-3 animate-fade-in shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-default" onClick={e => e.stopPropagation()}>
+    <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 my-2.5 flex items-center justify-between gap-3 animate-fade-in shadow-sm cursor-default" onClick={e => e.stopPropagation()}>
       <div className="flex items-center gap-3">
-        {/* Circular Countdown clock displaying current seconds */}
-        <div className={`relative w-12 h-12 flex items-center justify-center rounded-full bg-[#18263f] border-2 ${timerCircleBorder} select-none shrink-0`} key={seconds}>
-          <span className={`text-sm font-mono font-black ${timerTextColor} animate-pulse`}>{seconds}</span>
+        <div className="relative w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-[#0055ff] shadow-sm select-none shrink-0" key={seconds}>
+          <span className="text-sm font-mono font-black text-[#0055ff] animate-pulse">{seconds}</span>
         </div>
         <div className="text-left">
-          <span className={`text-[10px] font-mono tracking-widest ${timerTitleClass} block uppercase`}>DESCANSO ATIVO</span>
-          <span className="text-xs font-display font-medium text-slate-300">Respire, concentre e prepare-se!</span>
+          <span className="text-[10px] font-mono tracking-widest text-[#0055ff] block uppercase font-bold">DESCANSO ATIVO</span>
+          <span className="text-xs font-sans font-medium text-gray-700">Respire, concentre e prepare-se!</span>
         </div>
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
         <button 
           type="button"
           onClick={(e) => adjustTime(e, -15)}
-          className="bg-[#18273f] hover:bg-[#1f3150] border border-[#233554] text-slate-300 text-[10px] font-mono font-black py-2 px-2.5 rounded-xl cursor-pointer transition-all active:scale-95"
+          className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-[10px] font-mono font-black py-2 px-2.5 rounded-xl cursor-pointer transition-all active:scale-95"
         >
           -15s
         </button>
         <button 
           type="button"
           onClick={(e) => adjustTime(e, 15)}
-          className="bg-[#18273f] hover:bg-[#1f3150] border border-[#233554] text-slate-300 text-[10px] font-mono font-black py-2 px-2.5 rounded-xl cursor-pointer transition-all active:scale-95"
+          className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-[10px] font-mono font-black py-2 px-2.5 rounded-xl cursor-pointer transition-all active:scale-95"
         >
           +15s
         </button>
         <button 
           type="button"
           onClick={handleSkipClick}
-          className={`${skipButtonBg} text-white text-[10px] font-display font-black py-2.5 px-3 rounded-xl cursor-pointer transition-all active:scale-95 shadow-md`}
+          className="bg-[#0055ff] hover:bg-[#0044ee] text-white text-[10px] font-display font-black py-2.5 px-3 rounded-xl cursor-pointer transition-all active:scale-95 shadow-md"
         >
           Pular
         </button>
@@ -153,6 +144,7 @@ interface ActiveExerciseCardProps {
   handleSetCheckChange: (weId: string, setId: string, weight: number, reps: number, currentlyCompleted: boolean) => void;
   getTimerRemaining: (setId: string) => number;
   onUpdateTimer: (setId: string, seconds: number) => void;
+  isLight?: boolean;
 }
 
 const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
@@ -165,195 +157,188 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
   getTimerRemaining,
   onUpdateTimer
 }) => {
-  const {
-    isFemale,
-    accentBg,
-    accentBgHover,
-    accentBorder,
-    accentGlow,
-    accentRing,
-    accentFill,
-    accentText,
-    accentTextPlain,
-    accentBadge
-  } = useWorkout();
-
   // Local accordion state for render optimization
   const [isOpen, setIsOpen] = useState(() => {
-    // Starts true if first exercise of the routine OR if there are partially completed sets but some incomplete sets
-    const hasCompleted = we.sets.some(s => s.isCompleted);
-    const hasIncomplete = we.sets.some(s => !s.isCompleted);
-    const isCurrentActive = hasCompleted && hasIncomplete;
-    return exIdx === 0 || isCurrentActive;
+    // Starts true if first exercise of the routine
+    return exIdx === 0;
   });
 
-  // Local state for gif visibility to avoid any parent latency or refresh wipes!
+  // Local state for gif visibility
   const [isGifExpanded, setIsGifExpanded] = useState(false);
-  const [dismissedRestIds, setDismissedRestIds] = useState<string[]>([]);
+  
+  // Track active rest timer set id
+  const [activeTimerSetId, setActiveTimerSetId] = useState<string | null>(null);
 
   // Calculate if ALL sets of this exercise are finished
   const allSetsDone = we.sets.length > 0 && we.sets.every(s => s.isCompleted);
   // Calculate if SOME but not all sets are finished
   const partiallyDone = we.sets.some(s => s.isCompleted) && !allSetsDone;
 
-  // Closed View - Single large clickable clean tactical button
+  const methodLabel = we.method || `Método: Padrão (${we.sets.length} séries)`;
+  const intervalLabel = we.interval ? (we.interval.includes('Intervalo') ? we.interval : `Intervalo ${we.interval}`) : `Intervalo 45s`;
+  const loadLabel = we.loadText || `Carga: ${we.sets[0]?.weight ? `${we.sets[0].weight}kg` : 'Livre'}`;
+
+  // Read gitUrl dynamically from repository data, fallback to image_30 or Unsplash illustrative gifs
+  const displayGifUrl = we.exercise.gifUrl || we.exercise.imageUrl || 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=150';
+
   if (!isOpen) {
     return (
       <div 
         onClick={() => setIsOpen(true)}
-        className="bg-[#0b121f] border border-[#142238]/65 hover:border-slate-800 rounded-3xl p-4.5 flex items-center justify-between transition-all select-none cursor-pointer group active:scale-[0.99] duration-150 shadow-md relative overflow-hidden"
+        className="bg-white border border-gray-150 rounded-2xl p-4 flex items-center justify-between transition-all select-none cursor-pointer group active:scale-[0.99] duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative overflow-hidden"
       >
-        <div className="flex items-center gap-3.5 min-w-0 pr-3">
+        {/* Vibrant electric blue left strip */}
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#0055ff] shadow-[1px_0_8px_rgba(0,85,255,0.4)]"></div>
+
+        <div className="flex items-center gap-3.5 min-w-0 pr-3 pl-2">
           {/* Gem-like indicator reflecting status */}
           <div className="relative shrink-0 flex items-center justify-center">
             {allSetsDone ? (
-              <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgb(16,185,129)] border border-emerald-450 z-10"></span>
+              <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgb(16,185,129)] border border-emerald-400 z-10"></span>
             ) : partiallyDone ? (
-              <span className={`w-3.5 h-3.5 rounded-full ${isFemale ? 'bg-pink-500 shadow-[0_0_10px_rgba(244,63,94,0.7)]' : 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.7)]'} animate-pulse border border-slate-700 z-10`}></span>
+              <span className="w-3.5 h-3.5 rounded-full bg-[#0055ff] shadow-[0_0_10px_rgba(0,85,255,0.7)] animate-pulse border border-blue-200 z-10"></span>
             ) : (
-              <span className="w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-800 z-10"></span>
+              <span className="w-3.5 h-3.5 rounded-full bg-gray-300 border border-gray-200 z-10"></span>
             )}
             {partiallyDone && (
-              <span className={`absolute w-5 h-5 rounded-full ${isFemale ? 'bg-pink-500/20' : 'bg-blue-400/20'} animate-ping -z-10`}></span>
+              <span className="absolute w-5 h-5 rounded-full bg-[#0055ff]/20 animate-ping -z-10"></span>
             )}
           </div>
 
           <div className="min-w-0">
-            <span className={`text-base font-display font-black text-slate-200 group-hover:${isFemale ? 'text-pink-400' : 'text-blue-400'} transition-colors block leading-snug`}>
+            <span className="text-sm font-bold text-black group-hover:text-[#0055ff] transition-colors block leading-tight">
               {exIdx + 1}. {we.exercise.name}
             </span>
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-black block mt-0.5">
-              {we.exercise.category}
+            <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block mt-0.5 font-bold">
+              {we.exercise.category} • {methodLabel}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <span className="text-[10px] font-mono bg-slate-950/80 border border-slate-900/60 px-2.5 py-1 rounded-xl text-gray-400 font-extrabold shadow-inner">
+          <span className="text-[10px] font-mono bg-gray-50 border border-gray-150 px-2 py-0.5 rounded-lg text-gray-500 font-extrabold shadow-sm">
             {we.sets.filter(s => s.isCompleted).length}/{we.sets.length} séries
           </span>
-          <div
-            className="w-10 h-10 rounded-full bg-[#182337] border border-[#23334e] group-hover:border-slate-700 text-slate-300 flex items-center justify-center transition-all shadow-sm group-hover:bg-[#1a2b4b]"
-            title="Expandir Exercício"
-          >
-            <ChevronDown className="w-5 h-5 stroke-[2.5]" />
+          <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-150 text-gray-600 flex items-center justify-center transition-all shadow-sm">
+            <ChevronDown className="w-4.5 h-4.5 stroke-[2.5]" />
           </div>
         </div>
       </div>
     );
   }
 
-  // Open View - Entire top Area is still a collapsible trigger
   return (
-    <div 
-      className="bg-[#0b121f] border border-[#1d2d44]/70 rounded-3xl p-5 shadow-lg space-y-4 transition-all w-full overflow-hidden select-none animate-fade-in relative"
-    >
-      {/* Dynamic ambient highlight glow in background if active */}
-      {partiallyDone && (
-        <div className={`absolute top-0 right-0 w-32 h-32 ${isFemale ? 'bg-pink-500/3' : 'bg-blue-500/3'} rounded-full filter blur-2xl pointer-events-none`}></div>
-      )}
+    <div className="bg-white border border-gray-150 rounded-2xl p-4.5 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-4 transition-all w-full overflow-hidden select-none animate-fade-in relative">
+      {/* Left blue strip */}
+      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#0055ff] shadow-[1px_0_8px_rgba(0,85,255,0.4)]"></div>
 
-      {/* Exercise Details Header - Clickable upper container to collapse */}
+      {/* Collapsible trigger header */}
       <div 
         onClick={() => setIsOpen(false)}
-        className="flex justify-between items-start gap-3 w-full border-b border-slate-900 pb-3.5 cursor-pointer group select-none active:opacity-95"
+        className="flex justify-between items-start gap-3 w-full border-b border-gray-100 pb-3 cursor-pointer group select-none active:opacity-95 pl-2"
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            {/* Category tag */}
-            <span className={`text-[9px] uppercase font-mono px-2.5 py-0.5 bg-slate-950/80 border border-slate-900 ${isFemale ? 'text-pink-400' : 'text-blue-400'} font-extrabold rounded-lg`}>
+            <span className="text-[9px] uppercase font-mono px-2 py-0.5 bg-gray-100 border border-gray-200 text-[#0055ff] font-extrabold rounded-lg">
               {we.exercise.category}
             </span>
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation(); // Stop propagation to avoid collapsing the card
+                e.stopPropagation();
                 setIsGifExpanded((prev) => !prev);
               }}
               className={`flex items-center gap-1 text-[9px] font-mono font-black px-2 py-0.5 rounded-lg transition-all cursor-pointer ${
                 isGifExpanded
-                  ? (isFemale ? 'bg-pink-500 text-white font-extrabold' : 'bg-blue-600 text-white font-extrabold')
-                  : 'bg-slate-950/40 text-slate-500 border border-slate-900 hover:text-white'
+                  ? 'bg-[#0055ff] text-white'
+                  : 'bg-gray-100 text-gray-500 border border-gray-200 hover:text-black'
               }`}
-              title="Ver execução (GIF)"
             >
               <Eye className="w-3" />
               <span>{isGifExpanded ? 'FECHAR' : 'VER GIF'}</span>
             </button>
           </div>
           
-          <div className="flex items-center gap-2 justify-between w-full mt-2.5">
-            <h3 className={`text-lg font-display font-black text-white leading-tight break-words group-hover:${isFemale ? 'text-pink-400' : 'text-blue-400'} transition-all duration-150`}>
+          <div className="flex items-center gap-2 justify-between w-full mt-2">
+            <h3 className="text-base font-bold text-shadow text-black leading-tight break-words group-hover:text-[#0055ff] transition-all">
               {exIdx + 1}. {we.exercise.name}
             </h3>
-            <div
-              className="w-10 h-10 rounded-full bg-[#182337] border border-[#23334e] group-hover:border-slate-700 text-slate-300 flex items-center justify-center transition-all grow-0 shrink-0 shadow-sm shrink-0"
-              title="Minimizar Exercício"
-            >
-              <ChevronUp className="w-5 h-5 stroke-[2.5]" />
+            <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-150 text-gray-600 flex items-center justify-center transition-all grow-0 shrink-0 shadow-sm">
+              <ChevronUp className="w-4.5 h-4.5 stroke-[2.5]" />
+            </div>
+          </div>
+
+          {/* Dynamic Exercise prescription rules display */}
+          <div className="mt-2 space-y-1 bg-gray-50/50 rounded-xl p-2.5 border border-gray-100/80">
+            <p className="text-[11px] font-semibold text-gray-700 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0055ff]"></span>
+              <strong>Método:</strong> {methodLabel}
+            </p>
+            <p className="text-[11px] font-semibold text-gray-700 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0055ff]"></span>
+              <strong>Intervalo:</strong> {intervalLabel}
+            </p>
+            <p className="text-[11px] font-semibold text-gray-700 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0055ff]"></span>
+              <strong>Carga Inicial:</strong> {loadLabel}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Dynamic GIF expansion */}
+      {isGifExpanded && (
+        <div className="pt-1 animate-fade-in w-full overflow-hidden border-b border-gray-100 pb-3" onClick={e => e.stopPropagation()}>
+          <div className="rounded-xl overflow-hidden bg-gray-50 border border-gray-150 p-1 relative">
+            <img 
+              src={displayGifUrl} 
+              alt={we.exercise.name} 
+              className="w-full h-44 object-cover rounded-lg"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute bottom-2 left-2 bg-black/75 px-2.5 py-1 rounded text-[10px] font-mono text-white tracking-widest uppercase">
+              REPOSITÓRIO (GITHUB)
             </div>
           </div>
           {we.exercise.description && (
-            <p className="text-gray-400 text-xs leading-relaxed mt-1.5 max-w-sm break-words pr-2">
+            <p className="text-gray-500 text-xs mt-2 leading-relaxed px-1">
               {we.exercise.description}
             </p>
           )}
         </div>
-      </div>
-
-      {/* Show GIF / Explanation container if clicked */}
-      {isGifExpanded && (
-        <div className="pt-1 animate-fade-in w-full overflow-hidden border-b border-slate-900/40 pb-3" onClick={e => e.stopPropagation()}>
-          <ExerciseGifPlayer exercise={we.exercise} />
-        </div>
       )}
 
-      {/* Workout Set lines table - Armored dynamic columns */}
+      {/* Workout interactive table */}
       <div className="space-y-3 w-full overflow-hidden" onClick={e => e.stopPropagation()}>
-        {/* Scaled up column headers featuring thematic icons */}
-        <div className="grid grid-cols-12 gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest font-mono select-none px-2 mb-1.5 border-b border-[#142238]/40 pb-2">
+        <div className="grid grid-cols-12 gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest font-mono select-none px-2 mb-1.5 border-b border-gray-100 pb-1.5">
           <div className="col-span-2 text-left pl-1">SÉRIE</div>
-          <div className="col-span-4 text-center flex items-center justify-center gap-1 pr-1.5">
-            <Scale className="w-3 h-3 text-slate-500" />
-            <span>CARGA (KG)</span>
-          </div>
-          <div className="col-span-3 text-center flex items-center justify-center gap-1">
-            <Flame className="w-3 h-3 text-slate-500" />
-            <span>REPS</span>
-          </div>
+          <div className="col-span-4 text-center">CARGA (KG)</div>
+          <div className="col-span-3 text-center">REPS</div>
           <div className="col-span-2 text-center text-[9px]">STATUS</div>
           <div className="col-span-1"></div>
         </div>
 
-        <div className="space-y-2.5 w-full">
+        <div className="space-y-2 w-full">
           {we.sets.map((set, set_idx) => {
-            const isRestTimerShown = set.isCompleted;
-            
             return (
               <React.Fragment key={set.id}>
-                {/* Tactical input row, turns glowing when checked */}
                 <div 
-                  className={`grid grid-cols-12 items-center gap-2 px-2 py-2 rounded-2xl transition-all duration-200 relative group/row ${
+                  className={`grid grid-cols-12 items-center gap-2 px-2 py-1.5 rounded-xl transition-all duration-200 border group/row ${
                     set.isCompleted 
-                      ? (isFemale 
-                          ? 'bg-pink-500/5 border border-pink-500/15 shadow-[0_0_15px_rgba(244,63,94,0.02)]' 
-                          : 'bg-blue-500/5 border border-blue-500/15 shadow-[0_0_15px_rgba(59,130,246,0.02)]')
-                      : 'bg-[#121c2c]/40 border border-[#1b2b42]/40 hover:border-slate-800'
+                      ? 'bg-blue-50/40 border-blue-105 shadow-[0_2px_8px_rgba(0,85,255,0.01)]'
+                      : 'bg-white border-gray-150 hover:border-gray-300'
                   }`}
                 >
                   {/* Set Number */}
                   <div className="col-span-2 flex items-center pl-2">
-                    <span className={`text-base font-mono font-black ${set.isCompleted ? (isFemale ? 'text-pink-400 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-400'}`}>
+                    <span className={`text-sm font-mono font-black ${set.isCompleted ? 'text-[#0055ff]' : 'text-gray-600'}`}>
                       {set_idx + 1}
                     </span>
                   </div>
 
-                  {/* Weight Input Armored Cell (Subtle icon embedded inside pill container) */}
-                  <div className="col-span-4 px-1">
-                    <div className={`relative flex items-center bg-slate-950 border ${set.isCompleted ? 'border-transparent opacity-60' : 'border-slate-800/80 focus-within:' + accentBorder + ' focus-within:ring-1 focus-within:' + accentRing} rounded-2xl transition-all shadow-inner px-2.5`}>
-                      <span className="text-slate-650 shrink-0 select-none mr-1">
-                        <Dumbbell className="w-3 h-3 opacity-30" />
-                      </span>
+                  {/* Weight Input */}
+                  <div className="col-span-4 px-0.5">
+                    <div className={`relative flex items-center bg-gray-50 border ${set.isCompleted ? 'border-transparent opacity-60' : 'border-gray-200 focus-within:border-[#0055ff] focus-within:ring-1 focus-within:ring-[#0055ff]'} rounded-xl transition-all shadow-sm px-2`}>
                       <input
                         type="number"
                         inputMode="decimal"
@@ -364,19 +349,14 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                         }}
                         placeholder="0"
                         disabled={set.isCompleted}
-                        className={`w-full bg-transparent text-center font-mono text-base text-white focus:outline-none font-black py-2.5 px-0 select-all ${
-                          set.isCompleted ? 'cursor-not-allowed opacity-80' : ''
-                        }`}
+                        className="w-full bg-transparent text-center font-mono text-sm text-black focus:outline-none font-bold py-1.5"
                       />
                     </div>
                   </div>
 
-                  {/* Reps Input Armored Cell (Subtle icon embedded inside pill container) */}
-                  <div className="col-span-3 px-1">
-                    <div className={`relative flex items-center bg-slate-950 border ${set.isCompleted ? 'border-transparent opacity-60' : 'border-slate-800/80 focus-within:' + accentBorder + ' focus-within:ring-1 focus-within:' + accentRing} rounded-2xl transition-all shadow-inner px-2.5`}>
-                      <span className="text-slate-650 shrink-0 select-none mr-1">
-                        <Flame className="w-3 h-3 opacity-30" />
-                      </span>
+                  {/* Reps Input */}
+                  <div className="col-span-3 px-0.5">
+                    <div className={`relative flex items-center bg-gray-50 border ${set.isCompleted ? 'border-transparent opacity-60' : 'border-gray-200 focus-within:border-[#0055ff] focus-within:ring-1 focus-within:ring-[#0055ff]'} rounded-xl transition-all shadow-sm px-2`}>
                       <input
                         type="number"
                         inputMode="numeric"
@@ -387,42 +367,47 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                         }}
                         placeholder="0"
                         disabled={set.isCompleted}
-                        className={`w-full bg-transparent text-center font-mono text-base text-white focus:outline-none font-black py-2.5 px-0 select-all ${
-                          set.isCompleted ? 'cursor-not-allowed opacity-80' : ''
-                        }`}
+                        className="w-full bg-transparent text-center font-mono text-sm text-black focus:outline-none font-bold py-1.5"
                       />
                     </div>
                   </div>
 
-                  {/* Large tactile Status Checkbox */}
+                  {/* Gem-like interactive checkbox */}
                   <div className="col-span-2 flex items-center justify-center">
                     <button
                       type="button"
-                      onClick={() => handleSetCheckChange(we.id, set.id, set.weight, set.reps, set.isCompleted)}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all border duration-200 ${
+                      onClick={() => {
+                        const nextCompleted = !set.isCompleted;
+                        handleSetCheckChange(we.id, set.id, set.weight, set.reps, set.isCompleted);
+                        if (nextCompleted) {
+                          setActiveTimerSetId(set.id);
+                        } else {
+                          if (activeTimerSetId === set.id) {
+                            setActiveTimerSetId(null);
+                          }
+                        }
+                      }}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer transition-all border duration-205 ${
                         set.isCompleted
-                          ? (isFemale 
-                              ? 'bg-pink-500 border-pink-400 text-slate-100 scale-102 shadow-[0_0_12px_rgba(244,63,94,0.4)]' 
-                              : 'bg-blue-600 border-blue-550 text-slate-100 scale-102 shadow-[0_0_12px_rgba(96,165,250,0.4)]')
-                          : 'bg-slate-950/90 border-[#1f304b] text-slate-600 hover:border-slate-500 hover:bg-slate-900/40'
+                          ? 'bg-[#0055ff] border-[#0055ff] text-white scale-102 shadow-[0_2px_8px_rgba(0,85,255,0.35)]'
+                          : 'bg-white border-gray-200 hover:border-gray-300 text-transparent'
                       }`}
                     >
                       {set.isCompleted ? (
-                        <Check className="w-4 h-4 stroke-[4] text-white" />
+                        <Check className="w-3.5 h-3.5 stroke-[4.5] text-white" />
                       ) : (
-                        <span className="w-2 h-2 rounded-full bg-slate-850"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
                       )}
                     </button>
                   </div>
 
-                  {/* Row Delete option – clean layout */}
+                  {/* Delete action */}
                   <div className="col-span-1 flex items-center justify-end pr-1">
                     {we.sets.length > 1 && (
                       <button
                         type="button"
                         onClick={() => onDeleteSet(we.id, set.id)}
-                        className="text-slate-650 hover:text-red-500 p-1 rounded cursor-pointer transition-colors opacity-0 group-hover/row:opacity-100 focus:opacity-100"
-                        title="Remover série"
+                        className="text-gray-400 hover:text-red-500 p-1 rounded cursor-pointer transition-colors opacity-0 group-hover/row:opacity-100 focus:opacity-100"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -430,11 +415,11 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                   </div>
                 </div>
 
-                {/* Contextual Integrated Rest countdown ticking screen */}
-                {isRestTimerShown && !dismissedRestIds.includes(set.id) && (
+                {/* REST TIMER (LIGHT THEME) - DYNAMIC BELOW SET ROW */}
+                {activeTimerSetId === set.id && (
                   <InlineActiveRestTimer 
                     setId={set.id}
-                    onSkip={() => setDismissedRestIds((prev) => [...prev, set.id])}
+                    onSkip={() => setActiveTimerSetId(null)}
                     getTimerRemaining={getTimerRemaining}
                     onUpdateTimer={onUpdateTimer}
                   />
@@ -445,11 +430,11 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
         </div>
       </div>
 
-      {/* Add Set button - clean dynamic shortcut with premium borders */}
+      {/* Adicionar Série Button */}
       <button
         type="button"
         onClick={() => onAddSet(we.id)}
-        className={`w-full flex items-center justify-center gap-1.5 py-2.5 bg-slate-950/40 border border-slate-900 rounded-2xl text-[10px] font-black font-mono ${isFemale ? 'text-pink-400/70 hover:text-pink-400 hover:border-pink-500/10' : 'text-blue-400/70 hover:text-blue-400 hover:border-blue-500/10'} tracking-widest transition-all cursor-pointer`}
+        className="w-full flex items-center justify-center gap-1.5 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 rounded-xl text-[10px] font-black font-mono text-[#0055ff] tracking-widest transition-all cursor-pointer"
       >
         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
         <span>+ ADICIONAR SÉRIE</span>

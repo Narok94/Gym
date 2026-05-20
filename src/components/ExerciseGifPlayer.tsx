@@ -299,6 +299,96 @@ export const EXERCISE_VISUALS_MAP: Record<string, {
     ],
     biomechanics: 'Contra-resistência estática de gravidade e antiextensão lombar.',
     muscleActivationIndex: 91,
+  },
+  'ex-alana-abd-infra-solo': {
+    gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    fallbackColor: 'from-emerald-400/10 to-transparent',
+    primaryMuscles: ['Reto do Abdômen (Porção Infra)', 'Iliopsoas'],
+    secondaryMuscles: ['Reto Femoral', 'Oblíquos'],
+    tempo: '3-0-2-0',
+    tempoSteps: [
+      { phase: 'Excêntrica (Descida)', duration: '3s', description: 'Descer as pernas estendidas até quase tocar o chão.' },
+      { phase: 'Isométrica (Baixo)', duration: '0s', description: 'Manter a lombar firmemente apoiada no colchonete.' },
+      { phase: 'Concêntrica (Subida)', duration: '2s', description: 'Elevar a bacia contraindo o abdômen sem impulso.' },
+      { phase: 'Isométrica (Pico)', duration: '0s', description: 'Manter a contração isométrica no ponto mais alto.' }
+    ],
+    biomechanics: 'Retroversão pélvica associada com flexão de quadril no solo.',
+    muscleActivationIndex: 86,
+  },
+  'ex-alana-abd-infra-banco': {
+    gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop',
+    fallbackColor: 'from-emerald-500/10 to-transparent',
+    primaryMuscles: ['Reto do Abdômen', 'Iliopsoas'],
+    secondaryMuscles: ['Reto Femoral', 'Oblíquos'],
+    tempo: '3-1-2-1',
+    tempoSteps: [
+      { phase: 'Excêntrica (Descida)', duration: '3s', description: 'Descer as pernas controlando o movimento de descida na inclinação.' },
+      { phase: 'Isométrica (Isometria)', duration: '1s', description: 'Breve parada antes de subir.' },
+      { phase: 'Concêntrica (Subida)', duration: '2s', description: 'Subir as pernas até a posição de flexão máxima de quadril.' },
+      { phase: 'Isométrica (Pico de Contração)', duration: '1s', description: 'Esmagar o abdômen no topo.' }
+    ],
+    biomechanics: 'Flexão pélvica no banco inclinado contra a gravidade.',
+    muscleActivationIndex: 89,
+  },
+  'ex-alana-supino-inc': {
+    gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    fallbackColor: 'from-red-500/10 to-transparent',
+    primaryMuscles: ['Peitoral Maior (Superior)', 'Tríceps Braquial'],
+    secondaryMuscles: ['Deltoide Anterior'],
+    tempo: '3-1-2-0',
+    tempoSteps: [
+      { phase: 'Excêntrica (Descida)', duration: '3s', description: 'Descer o peso de forma controlada até o peito superior.' },
+      { phase: 'Isométrica (Alongamento)', duration: '1s', description: 'Alongar o peito próximo ao limite articular de segurança.' },
+      { phase: 'Concêntrica (Empurre)', duration: '2s', description: 'Empurrar com velocidade constante e foco em adução horizontal.' },
+      { phase: 'Isométrica (Pico)', duration: '0s', description: 'Contração isométrica de transição no topo.' }
+    ],
+    biomechanics: 'Adução de ombros em plano inclinado focado no feixe clavicular do peitoral.',
+    muscleActivationIndex: 94,
+  },
+  'ex-alana-crucifixo-adutor': {
+    gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop',
+    fallbackColor: 'from-purple-500/10 to-transparent',
+    primaryMuscles: ['Peitoral Maior (Miolo)', 'Deltoide Anterior'],
+    secondaryMuscles: ['Bíceps (Cabeça Curta)'],
+    tempo: '4-0-2-1',
+    tempoSteps: [
+      { phase: 'Excêntrica (Abertura)', duration: '4s', description: 'Abrir os cabos mantendo cotovelos semi-flexionados.' },
+      { phase: 'Isométrica (Alongamento)', duration: '0s', description: 'Sentir o estiramento das fibras sem ultrapassar a linha dorsal.' },
+      { phase: 'Concêntrica (Adução)', duration: '2s', description: 'Fechar e cruzar os braços à frente contraindo os adutores.' },
+      { phase: 'Isométrica (Esmagar)', duration: '1s', description: 'Manter a contração voluntária no ponto concêntrico final.' }
+    ],
+    biomechanics: 'Adução horizontal pura com tensão constante pelo cabo.',
+    muscleActivationIndex: 91,
+  },
+  'ex-alana-triceps-testa': {
+    gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop',
+    fallbackColor: 'from-cyan-500/10 to-transparent',
+    primaryMuscles: ['Tríceps (Cabeça Longa)', 'Tríceps (Cabeça Lateral)'],
+    secondaryMuscles: ['Ancôneo'],
+    tempo: '3-0-2-1',
+    tempoSteps: [
+      { phase: 'Excêntrica (Descida)', duration: '3s', description: 'Descer o halter em direção à testa dobrando apenas os cotovelos.' },
+      { phase: 'Isométrica (Baixo)', duration: '0s', description: 'Alcançar flexão máxima sem bater nos braços.' },
+      { phase: 'Concêntrica (Extensão)', duration: '2s', description: 'Subir e estender os braços esmagando os tríceps.' },
+      { phase: 'Isométrica (Pico)', duration: '1s', description: 'Aproveitar a isometria máxima no topo do movimento.' }
+    ],
+    biomechanics: 'Extensão de cotovelo com braços em flexão estática de 90 graus.',
+    muscleActivationIndex: 88,
+  },
+  'ex-alana-triceps-mergulho': {
+    gifUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
+    fallbackColor: 'from-cyan-400/10 to-transparent',
+    primaryMuscles: ['Tríceps (Porção Completa)', 'Peitoral Inferior'],
+    secondaryMuscles: ['Deltoide Anterior'],
+    tempo: '3-1-2-1',
+    tempoSteps: [
+      { phase: 'Excêntrica (Descida)', duration: '3s', description: 'Descer o tronco dobrando cotovelos para trás e não abertos.' },
+      { phase: 'Isométrica (Baixo)', duration: '1s', description: 'Alongamento controlado na porção inferior.' },
+      { phase: 'Concêntrica (Subida)', duration: '2s', description: 'Empurrar para cima com toda a força estendendo braços.' },
+      { phase: 'Isométrica (Topo)', duration: '1s', description: 'Esmagar tríceps totalmente contraído.' }
+    ],
+    biomechanics: 'Mergulho em plano paralelo ou banco com foco em tríceps.',
+    muscleActivationIndex: 85,
   }
 };
 
