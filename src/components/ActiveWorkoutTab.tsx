@@ -49,6 +49,25 @@ export default function ActiveWorkoutTab({
   // Track if they want to cancel (confirmation state)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
+  // Track expanded exercises during active workout (default to first two exercises expanded)
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (activeWorkout && activeWorkout.exercises.length > 0 && expandedIds.length === 0) {
+      // Expand both of the first 2 exercises to showcase the dual active independent timer mechanics
+      const ids = activeWorkout.exercises.slice(0, 2).map(e => e.id);
+      setExpandedIds(ids);
+    }
+  }, [activeWorkout, expandedIds.length]);
+
+  const toggleExpandExercise = (id: string) => {
+    setExpandedIds((prev) => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id) 
+        : [...prev, id]
+    );
+  };
+
   // Initialize and run the main Workout timer
   useEffect(() => {
     if (activeWorkout) {
@@ -224,11 +243,11 @@ export default function ActiveWorkoutTab({
   return (
     <div className="space-y-5 animate-fade-in pb-28 px-0.5 relative">
       {/* Header Info */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md space-y-3">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-md space-y-3">
         <div className="flex justify-between items-start gap-3">
           <div>
-            <span className="text-[10px] uppercase font-mono tracking-widest text-neon-green font-bold">EM ANDAMENTO</span>
-            <h2 className="text-base font-display font-black text-white">{activeWorkout.name}</h2>
+            <span className="text-xs uppercase font-mono tracking-widest text-neon-green font-bold">EM ANDAMENTO</span>
+            <h2 className="text-2xl font-display font-black text-white tracking-tight">{activeWorkout.name}</h2>
           </div>
           <button 
             type="button"
@@ -300,6 +319,8 @@ export default function ActiveWorkoutTab({
             onDeleteSet={onDeleteSet}
             onAddSet={onAddSet}
             handleSetCheckChange={handleSetCheckChange}
+            isExpanded={expandedIds.includes(we.id)}
+            onToggleExpand={() => toggleExpandExercise(we.id)}
           />
         ))}
       </div>
@@ -371,70 +392,6 @@ export default function ActiveWorkoutTab({
         </div>
       )}
 
-      {/* Floating Rest Timer Panel (Appears at the bottom when a set checkbox is completed) */}
-      {isRestActive && (
-        <div className="fixed bottom-[74px] left-1/2 transform -translate-x-1/2 w-[92%] max-w-md bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-neon-green/40 hover:border-neon-green/80 rounded-2xl p-3.5 shadow-[0_-4px_24px_rgba(163,230,53,0.15)] z-40 flex items-center justify-between gap-3 animate-bounce-short">
-          <div className="flex items-center gap-3">
-            {/* Visual ticking indicator ring */}
-            <div className={`relative w-11 h-11 rounded-full flex items-center justify-center font-mono font-bold text-sm bg-slate-950 border ${restSeconds < 10 ? 'border-red-500 text-red-500 animate-pulse' : 'border-neon-green text-neon-green'}`}>
-              <span>{restSeconds}</span>
-              {/* Radial spinner animation helper */}
-              <div 
-                className="absolute inset-0 rounded-full border-2 border-transparent border-t-neon-green/40 animate-spin"
-                style={{ animationDuration: '3s' }}
-              ></div>
-            </div>
-            <div>
-              <p className="text-[11px] font-extrabold text-white">Descanso Ativo</p>
-              <p className="text-[9px] text-gray-400 font-mono">Prepare-se para a próxima</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={() => addRestTime(-15)}
-              className="bg-slate-900 border border-slate-800 text-gray-400 hover:text-white font-mono text-xs font-bold w-9 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer"
-              title="Reduzir 15 segundos"
-            >
-              -15s
-            </button>
-            <button
-              onClick={() => addRestTime(15)}
-              className="bg-slate-900 border border-slate-800 text-gray-400 hover:text-white font-mono text-xs font-bold w-9 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer"
-              title="Adicionar 15 segundos"
-            >
-              +15s
-            </button>
-            <button
-              onClick={() => setIsRestActive(false)}
-              className="bg-neon-green/20 hover:bg-neon-green hover:text-slate-950 border-2 border-neon-green/40 text-neon-green font-display font-extrabold text-[11px] px-2.5 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer shadow-sm"
-            >
-              Pular
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal/Banner for when Rest Timer successfully completes without skip */}
-      {restTimerCompleted && (
-        <div className="fixed bottom-[74px] left-1/2 transform -translate-x-1/2 w-[92%] max-w-md bg-slate-950 border-2 border-neon-green rounded-2xl p-3 shadow-[0_0_20px_rgba(163,230,53,0.3)] z-40 flex items-center justify-between gap-3 animate-fade-in">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-neon-green text-slate-950 flex items-center justify-center animate-pulse">
-              <Award className="w-5 h-5 fill-slate-950" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-white">Tempo de descanso concluído! 👊</p>
-              <p className="text-[10px] text-neon-green font-medium">Hora de pegar pesado de novo!</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setRestTimerCompleted(false)}
-            className="text-gray-400 hover:text-white bg-slate-900 border border-slate-800 p-1.5 rounded-lg text-xs font-semibold cursor-pointer"
-          >
-            Fechar
-          </button>
-        </div>
-      )}
     </div>
   );
 }
