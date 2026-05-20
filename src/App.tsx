@@ -20,6 +20,7 @@ import DashboardTab from './components/DashboardTab';
 import ActiveWorkoutTab from './components/ActiveWorkoutTab';
 import ExercisesTab from './components/ExercisesTab';
 import PerfilTab from './components/PerfilTab';
+import { usePersistentWorkout } from './hooks/usePersistentWorkout';
 
 export default function App() {
   // Authentication states
@@ -74,6 +75,12 @@ export default function App() {
     }
     return null;
   });
+
+  const {
+    getOrStartTimer,
+    updateTimerRemaining,
+    clearTimer
+  } = usePersistentWorkout(activeWorkout, setActiveWorkout);
   const [workoutHistory, setWorkoutHistory] = useState<HistorySession[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tatu_workoutHistory');
@@ -591,6 +598,8 @@ export default function App() {
             onAddExercise={handleAddExerciseToActive}
             onFinishWorkout={handleFinishWorkout}
             onCancelActiveWorkout={handleCancelActiveWorkout}
+            getTimerRemaining={getOrStartTimer}
+            onUpdateTimer={updateTimerRemaining}
           />
         )}
 

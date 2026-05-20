@@ -4,32 +4,59 @@ import { WorkoutExercise, ExerciseSet, Exercise } from '../types';
 import ExerciseGifPlayer from './ExerciseGifPlayer';
 
 interface InlineActiveRestTimerProps {
-  initialSeconds?: number;
+  setId: string;
   onSkip: () => void;
+  getTimerRemaining: (setId: string) => number;
+  onUpdateTimer: (setId: string, seconds: number) => void;
 }
 
 const InlineActiveRestTimer: React.FC<InlineActiveRestTimerProps> = ({ 
-  initialSeconds = 54, 
-  onSkip 
+  setId,
+  onSkip,
+  getTimerRemaining,
+  onUpdateTimer
 }) => {
-  const [seconds, setSeconds] = useState(initialSeconds);
+  const [seconds, setSeconds] = useState(() => getTimerRemaining(setId));
 
+  // Sync with background ticking or visibility changes
   useEffect(() => {
+    // Read fresh state initially
+    const initial = getTimerRemaining(setId);
+    setSeconds(initial);
+
     const timer = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
+      const currentRemaining = getTimerRemaining(setId);
+      if (currentRemaining <= 0) {
+        clearInterval(timer);
+        setSeconds(0);
+        onSkip(); // auto dismiss when timer hits 0
+        return;
+      }
+      const nextSecs = currentRemaining - 1;
+      onUpdateTimer(setId, nextSecs);
+      setSeconds(nextSecs);
     }, 1000);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [setId]);
+
+  // Handle visibility changes directly as a safety listener
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setSeconds(getTimerRemaining(setId));
+      }
+    };
+    window.addEventListener('visibilitychange', handleVisibility);
+    return () => window.removeEventListener('visibilitychange', handleVisibility);
+  }, [setId]);
 
   const adjustTime = (e: React.MouseEvent, amount: number) => {
     e.stopPropagation();
-    setSeconds((prev) => Math.max(0, prev + amount));
+    const currentRemaining = getTimerRemaining(setId);
+    const updated = Math.max(0, currentRemaining + amount);
+    onUpdateTimer(setId, updated);
+    setSeconds(updated);
   };
 
   const handleSkipClick = (e: React.MouseEvent) => {
@@ -41,7 +68,7 @@ const InlineActiveRestTimer: React.FC<InlineActiveRestTimerProps> = ({
     <div className="bg-[#101b2f] border border-[#1d3251] rounded-2xl p-4 my-2.5 flex items-center justify-between gap-3 animate-fade-in shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-default" onClick={e => e.stopPropagation()}>
       <div className="flex items-center gap-3">
         {/* Circular Countdown clock displaying current seconds */}
-        <div className="relative w-12 h-12 flex items-center justify-center rounded-full bg-[#18263f] border-2 border-neon-green/70 shadow-[0_0_12px_rgba(163,230,53,0.3)] select-none shrink-0">
+        <div className="relative w-12 h-12 flex items-center justify-center rounded-full bg-[#18263f] border-2 border-neon-green/70 shadow-[0_0_12px_rgba(163,230,53,0.3)] select-none shrink-0" key={seconds}>
           <span className="text-sm font-mono font-black text-neon-green animate-pulse">{seconds}</span>
         </div>
         <div className="text-left">
@@ -85,6 +112,8 @@ interface ActiveExerciseCardProps {
   handleSetCheckChange: (weId: string, setId: string, weight: number, reps: number, currentlyCompleted: boolean) => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  getTimerRemaining: (setId: string) => number;
+  onUpdateTimer: (setId: string, seconds: number) => void;
 }
 
 const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
@@ -95,7 +124,9 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
   onAddSet,
   handleSetCheckChange,
   isExpanded = true,
-  onToggleExpand
+  onToggleExpand,
+  getTimerRemaining,
+  onUpdateTimer
 }) => {
   // Local state for gif visibility to avoid any parent latency or refresh wipes!
   const [isGifExpanded, setIsGifExpanded] = useState(false);
@@ -304,7 +335,10 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                 {/* Inline Rest Timer */}
                 {isRestTimerShown && !dismissedRestIds.includes(set.id) && (
                   <InlineActiveRestTimer 
+                    setId={set.id}
                     onSkip={() => setDismissedRestIds((prev) => [...prev, set.id])}
+                    getTimerRemaining={getTimerRemaining}
+                    onUpdateTimer={onUpdateTimer}
                   />
                 )}
               </React.Fragment>

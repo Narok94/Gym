@@ -18,6 +18,8 @@ interface ActiveWorkoutTabProps {
   onAddExercise: (exercise: Exercise) => void;
   onFinishWorkout: (durationMinutes: number, totalVolume: number, totalSets: number) => void;
   onCancelActiveWorkout: () => void;
+  getTimerRemaining: (setId: string) => number;
+  onUpdateTimer: (setId: string, seconds: number) => void;
 }
 
 export default function ActiveWorkoutTab({
@@ -29,7 +31,9 @@ export default function ActiveWorkoutTab({
   onDeleteSet,
   onAddExercise,
   onFinishWorkout,
-  onCancelActiveWorkout
+  onCancelActiveWorkout,
+  getTimerRemaining,
+  onUpdateTimer
 }: ActiveWorkoutTabProps) {
   // Active Workout Timer (how long the workout has been running)
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
@@ -321,6 +325,8 @@ export default function ActiveWorkoutTab({
             handleSetCheckChange={handleSetCheckChange}
             isExpanded={expandedIds.includes(we.id)}
             onToggleExpand={() => toggleExpandExercise(we.id)}
+            getTimerRemaining={getTimerRemaining}
+            onUpdateTimer={onUpdateTimer}
           />
         ))}
       </div>

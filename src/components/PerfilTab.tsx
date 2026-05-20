@@ -78,6 +78,14 @@ export default function PerfilTab({
   const [manualPhotoUrl, setManualPhotoUrl] = useState('');
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
 
+  // Photo positioning and cropping state
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropScale, setCropScale] = useState(1.0);
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
+  const [cropRotate, setCropRotate] = useState(0);
+  const [isDraggingCrop, setIsDraggingCrop] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
   // Reminders creation state
   const [isAddingReminder, setIsAddingReminder] = useState(false);
   const [reminderDay, setReminderDay] = useState('Segunda');
@@ -136,7 +144,10 @@ export default function PerfilTab({
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {
           if (target === 'avatar') {
-            setEditAvatarUrl(reader.result);
+            setCropSrc(reader.result);
+            setCropScale(1.0);
+            setCropOffset({ x: 0, y: 0 });
+            setCropRotate(0);
           } else {
             onAddGalleryPhoto(reader.result);
             setIsAddingPhoto(false);
@@ -321,6 +332,21 @@ export default function PerfilTab({
                 onChange={(e) => handleFileChange(e, 'avatar')}
                 className="hidden"
               />
+              {editAvatarUrl && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCropSrc(editAvatarUrl);
+                    setCropScale(1.0);
+                    setCropOffset({ x: 0, y: 0 });
+                    setCropRotate(0);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#182337] hover:bg-[#202e48] text-neon-green border border-[#23334e] rounded-xl text-[10px] font-bold cursor-pointer transition-all active:scale-95 text-center mt-1"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                  <span>Posicionar e Ajustar Enquadramento</span>
+                </button>
+              )}
               <span className="text-[10px] text-slate-400">Envie uma foto ou escolha abaixo:</span>
               
               {/* Ready-to-go gym avatar selector */}
@@ -951,6 +977,215 @@ export default function PerfilTab({
               >
                 <Trash2 className="w-4 h-4" />
                 <span>Excluir Foto</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* INTERACTIVE AVATAR CIRCULAR POSITIONER AND CROPPER MODAL */}
+      {cropSrc && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 animate-fade-in"
+          onClick={() => setCropSrc(null)}
+        >
+          <div 
+            className="bg-slate-900 border border-slate-800 rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-xl select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <ZoomIn className="w-4 h-4 text-neon-green" />
+                <h3 className="text-sm font-display font-extrabold text-white">Posicionar Foto</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCropSrc(null)}
+                className="text-slate-500 hover:text-white transition-colors p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-normal text-center">
+              Arraste a foto diretamente para enquadrar no círculo do perfil. Dê zoom se necessário.
+            </p>
+
+            {/* Viewport Frame Container */}
+            <div className="flex justify-center my-2">
+              <div className="w-64 h-64 relative bg-[#020617] rounded-2xl overflow-hidden border border-slate-800 shadow-inner select-none pointer-events-auto">
+                <div 
+                  className="absolute inset-0 flex items-center justify-center"
+                  onMouseDown={(e) => {
+                    setIsDraggingCrop(true);
+                    setDragStart({ x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y });
+                  }}
+                  onMouseMove={(e) => {
+                    if (!isDraggingCrop) return;
+                    setCropOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+                  }}
+                  onMouseUp={() => setIsDraggingCrop(false)}
+                  onMouseLeave={() => setIsDraggingCrop(false)}
+                  onTouchStart={(e) => {
+                    if (e.touches[0]) {
+                      setIsDraggingCrop(true);
+                      setDragStart({ x: e.touches[0].clientX - cropOffset.x, y: e.touches[0].clientY - cropOffset.y });
+                    }
+                  }}
+                  onTouchMove={(e) => {
+                    if (!isDraggingCrop || !e.touches[0]) return;
+                    setCropOffset({ x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y });
+                  }}
+                  onTouchEnd={() => setIsDraggingCrop(false)}
+                  style={{ cursor: isDraggingCrop ? 'grabbing' : 'grab' }}
+                >
+                  <img
+                    src={cropSrc}
+                    alt="Cropping Profile Preview"
+                    className="max-none select-none pointer-events-none transition-none"
+                    style={{
+                      transform: `translate(${cropOffset.x}px, ${cropOffset.y}px) scale(${cropScale}) rotate(${cropRotate}deg)`,
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain'
+                    }}
+                    referrerPolicy="no-referrer"
+                  />
+                  
+                  {/* Circular Cutout Overlay with translucent mask */}
+                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <svg className="absolute inset-0 w-full h-full opacity-80" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <defs>
+                        <mask id="circle-profile-mask">
+                          <rect x="0" y="0" width="100" height="100" fill="white" />
+                          <circle cx="50" cy="50" r="35" fill="black" />
+                        </mask>
+                      </defs>
+                      <rect x="0" y="0" width="100" height="100" fill="#090d16" mask="url(#circle-profile-mask)" />
+                    </svg>
+                    
+                    {/* Glowing Guideline Circle */}
+                    <div className="w-[178px] h-[178px] rounded-full border-2 border-dashed border-neon-green/90 absolute shadow-[0_0_15px_rgba(163,230,53,0.3)]"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Control Sliders */}
+            <div className="space-y-3.5 text-xs bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+              {/* Scale/Zoom Range Slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-[10px] font-mono font-bold text-slate-400">
+                  <span>ZOOM</span>
+                  <span className="text-neon-green">{cropScale.toFixed(1)}x</span>
+                </div>
+                <input 
+                  type="range"
+                  min="0.8"
+                  max="3.5"
+                  step="0.05"
+                  value={cropScale}
+                  onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neon-green"
+                />
+              </div>
+
+              {/* Rotation Slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-[10px] font-mono font-bold text-slate-400">
+                  <span>ROTAÇÃO</span>
+                  <span className="text-neon-green">{cropRotate}°</span>
+                </div>
+                <input 
+                  type="range"
+                  min="-180"
+                  max="180"
+                  value={cropRotate}
+                  onChange={(e) => setCropRotate(parseInt(e.target.value))}
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neon-green"
+                />
+              </div>
+
+              {/* Quick Reset coordinates button */}
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCropScale(1.0);
+                    setCropOffset({ x: 0, y: 0 });
+                    setCropRotate(0);
+                  }}
+                  className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-white transition-all bg-slate-900 px-2 py-1 rounded border border-slate-850 cursor-pointer"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Centralizar Origem</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Actions Footer */}
+            <div className="flex gap-2 text-xs font-bold pt-1.5">
+              <button
+                type="button"
+                onClick={() => setCropSrc(null)}
+                className="flex-1 bg-slate-950 hover:bg-slate-850 border border-slate-800 py-2.5 rounded-xl text-slate-300 transition-colors cursor-pointer text-center"
+              >
+                Voltar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!cropSrc) return;
+                  const img = new Image();
+                  img.crossOrigin = 'anonymous';
+                  img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 300;
+                    canvas.height = 300;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                      ctx.fillStyle = '#0f172a';
+                      ctx.fillRect(0, 0, 300, 300);
+
+                      ctx.save();
+                      ctx.translate(150, 150);
+                      ctx.rotate((cropRotate * Math.PI) / 180);
+
+                      const imgAspect = img.width / img.height;
+                      let drawWidth = 300;
+                      let drawHeight = 300;
+                      if (imgAspect > 1) {
+                        drawHeight = 300;
+                        drawWidth = 300 * imgAspect;
+                      } else {
+                        drawWidth = 300;
+                        drawHeight = 300 / imgAspect;
+                      }
+
+                      ctx.scale(cropScale, cropScale);
+                      
+                      // Mapping 256px layout representation coordinates to 300px target space
+                      const scaleFactor = 300 / 256;
+                      ctx.drawImage(
+                        img, 
+                        (-drawWidth / 2) + (cropOffset.x * scaleFactor), 
+                        (-drawHeight / 2) + (cropOffset.y * scaleFactor), 
+                        drawWidth, 
+                        drawHeight
+                      );
+                      ctx.restore();
+
+                      const croppedUrl = canvas.toDataURL('image/jpeg', 0.9);
+                      setEditAvatarUrl(croppedUrl);
+                      setCropSrc(null);
+                    }
+                  };
+                  img.src = cropSrc;
+                }}
+                className="flex-1 bg-neon-green hover:bg-lime-500 text-slate-950 py-2.5 rounded-xl transition-colors cursor-pointer text-center flex items-center justify-center gap-1 shadow-md"
+              >
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Pronto</span>
               </button>
             </div>
           </div>
