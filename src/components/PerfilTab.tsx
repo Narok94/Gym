@@ -6,6 +6,7 @@ import {
   Bell, BellOff, Clock
 } from 'lucide-react';
 import { UserProfile, HistorySession, WeightRecord, WorkoutReminder } from '../types';
+import { useWorkout } from '../WorkoutContext';
 
 // Let's provide some cool athletic avatar fast-packs
 const COOL_AVATARS = [
@@ -26,6 +27,7 @@ interface PerfilTabProps {
     height: number;
     currentWeight: number;
     level: 'Iniciante' | 'Intermediário' | 'Avançado';
+    gender?: 'male' | 'female';
   }) => void;
   onAddGalleryPhoto: (photoBase64OrUrl: string) => void;
   onDeleteGalleryPhoto: (photoUrl: string) => void;
@@ -50,6 +52,19 @@ export default function PerfilTab({
   onToggleReminder,
   onLogout
 }: PerfilTabProps) {
+  const {
+    isFemale,
+    accentBg,
+    accentBgHover,
+    accentBorder,
+    accentGlow,
+    accentRing,
+    accentFill,
+    accentText,
+    accentTextPlain,
+    accentBadge
+  } = useWorkout();
+
   // Stats
   const [newWeight, setNewWeight] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -61,6 +76,7 @@ export default function PerfilTab({
   const [editWeight, setEditWeight] = useState(String(userProfile.currentWeight));
   const [editAvatarUrl, setEditAvatarUrl] = useState(userProfile.avatarUrl);
   const [editLevel, setEditLevel] = useState(userProfile.level);
+  const [editGender, setEditGender] = useState<'male' | 'female'>(userProfile.gender || 'male');
 
   // Sync edits state with profile updates only when NOT actively editing to avoid text field resets
   useEffect(() => {
@@ -70,6 +86,7 @@ export default function PerfilTab({
       setEditWeight(String(userProfile.currentWeight));
       setEditAvatarUrl(userProfile.avatarUrl);
       setEditLevel(userProfile.level);
+      setEditGender(userProfile.gender || 'male');
     }
   }, [userProfile, isEditing]);
 
@@ -126,7 +143,8 @@ export default function PerfilTab({
       avatarUrl: editAvatarUrl,
       height: Number(editHeight) || 170,
       currentWeight: Number(editWeight) || 70,
-      level: editLevel
+      level: editLevel,
+      gender: editGender
     });
     setIsEditing(false);
     setErrorMsg('');
@@ -231,7 +249,7 @@ export default function PerfilTab({
       {!isEditing ? (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden w-full">
           {/* Accent decoration */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-neon-green/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div className={`absolute top-0 right-0 w-32 h-32 ${isFemale ? 'bg-pink-500/5' : 'bg-blue-500/5'} rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none`}></div>
           
           <button
             onClick={() => {
@@ -242,7 +260,7 @@ export default function PerfilTab({
               setEditAvatarUrl(userProfile.avatarUrl);
               setEditLevel(userProfile.level);
             }}
-            className="absolute top-4 right-4 flex items-center gap-1 bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-neon-green/40 transition-all rounded-lg p-2 text-xs font-bold text-neon-green cursor-pointer select-none"
+            className={`absolute top-4 right-4 flex items-center gap-1 bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:${accentBorder} transition-all rounded-lg p-2 text-xs font-bold ${accentText} cursor-pointer select-none`}
             title="Editar dados"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -255,18 +273,18 @@ export default function PerfilTab({
               <img 
                 src={userProfile.avatarUrl} 
                 alt={userProfile.name} 
-                className="w-20 h-20 rounded-full object-cover border-4 border-neon-green/90 shadow-lg shadow-neon-green/10"
+                className={`w-20 h-20 rounded-full object-cover border-4 ${isFemale ? 'border-pink-500/95 shadow-pink-550/10' : 'border-blue-500/90 shadow-blue-500/10'} shadow-lg`}
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute -bottom-1 -right-1 bg-neon-green text-slate-950 p-1.5 rounded-full border-2 border-slate-900">
-                <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
+              <div className={`absolute -bottom-1 -right-1 ${accentBg} text-slate-100 p-1.5 rounded-full border-2 border-slate-900`}>
+                <Sparkles className="w-3.5 h-3.5 fill-white text-white" />
               </div>
             </div>
 
             <div className="space-y-1">
               <h2 className="text-lg font-display font-extrabold text-white tracking-wide">{userProfile.name}</h2>
               <div className="flex items-center justify-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold bg-neon-green/10 text-neon-green px-2.5 py-0.5 rounded-full border border-neon-green/20 uppercase">
+                <span className={`text-[10px] font-mono font-bold ${isFemale ? 'bg-pink-500/15 text-pink-400 border-pink-550/20' : 'bg-blue-500/15 text-blue-400 border-blue-550/20'} px-2.5 py-0.5 rounded-full border uppercase`}>
                   Atleta {userProfile.level}
                 </span>
               </div>
@@ -281,7 +299,7 @@ export default function PerfilTab({
             </div>
             <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
               <span className="text-[9px] text-gray-500 block uppercase font-mono">Peso Atual</span>
-              <span className="text-xs font-bold text-neon-green font-mono">{userProfile.currentWeight} kg</span>
+              <span className={`text-xs font-bold ${accentText} font-mono`}>{userProfile.currentWeight} kg</span>
             </div>
             <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
               <span className="text-[9px] text-gray-500 block uppercase font-mono">Realizados</span>
@@ -294,7 +312,7 @@ export default function PerfilTab({
         <form onSubmit={handleProfileSave} className="bg-slate-900 border border-slate-700 rounded-2xl p-5 shadow-xl relative animate-fade-in space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
             <h3 className="text-sm font-display font-bold text-white flex items-center gap-1.5">
-              <Edit2 className="w-4 h-4 text-neon-green" />
+              <Edit2 className={`w-4 h-4 ${accentText}`} />
               <span>Modificar Perfil</span>
             </h3>
             <button
@@ -313,13 +331,13 @@ export default function PerfilTab({
                 <img 
                   src={editAvatarUrl} 
                   alt="Previa" 
-                  className="w-16 h-16 rounded-full object-cover border-2 border-neon-green"
+                  className={`w-16 h-16 rounded-full object-cover border-2 ${isFemale ? 'border-pink-500 shadow-[0_0_10px_rgba(244,63,94,0.2)]' : 'border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]'}`}
                   referrerPolicy="no-referrer"
                 />
                 <button
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 bg-neon-green hover:bg-lime-500 text-slate-950 p-1.5 rounded-full border border-slate-900 shadow-md transition-colors cursor-pointer"
+                  className={`absolute bottom-0 right-0 ${accentBg} ${accentBgHover} text-white p-1.5 rounded-full border border-slate-900 shadow-md transition-all cursor-pointer`}
                   title="Selecionar foto local"
                 >
                   <Camera className="w-3.5 h-3.5" />
@@ -341,7 +359,7 @@ export default function PerfilTab({
                     setCropOffset({ x: 0, y: 0 });
                     setCropRotate(0);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#182337] hover:bg-[#202e48] text-neon-green border border-[#23334e] rounded-xl text-[10px] font-bold cursor-pointer transition-all active:scale-95 text-center mt-1"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 bg-[#182337] hover:bg-[#202e48] ${accentText} border border-[#23334e] rounded-xl text-[10px] font-bold cursor-pointer transition-all active:scale-95 text-center mt-1`}
                 >
                   <ZoomIn className="w-3.5 h-3.5" />
                   <span>Posicionar e Ajustar Enquadramento</span>
@@ -357,7 +375,7 @@ export default function PerfilTab({
                     type="button"
                     onClick={() => setEditAvatarUrl(avUrl)}
                     className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all ${
-                      editAvatarUrl === avUrl ? 'border-neon-green scale-110' : 'border-transparent opacity-60 hover:opacity-100'
+                      editAvatarUrl === avUrl ? (isFemale ? 'border-pink-500 scale-110' : 'border-blue-500 scale-110') : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img src={avUrl} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
@@ -372,7 +390,7 @@ export default function PerfilTab({
                   placeholder="Ou cole uma URL de imagem externa"
                   value={editAvatarUrl.startsWith('data:') ? '' : editAvatarUrl}
                   onChange={(e) => setEditAvatarUrl(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-lg py-1 px-2.5 text-center text-[10px] text-slate-350 outline-none font-mono"
+                  className={`w-full bg-slate-950 border border-slate-800 focus:${accentBorder} rounded-lg py-1 px-2.5 text-center text-[10px] text-slate-350 outline-none font-mono`}
                 />
               </div>
             </div>
@@ -386,7 +404,7 @@ export default function PerfilTab({
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green text-white rounded-xl py-2 px-3 outline-none"
+                  className={`w-full bg-slate-950 border border-slate-800 focus:${accentBorder} text-white rounded-xl py-2 px-3 outline-none`}
                 />
               </div>
 
@@ -414,17 +432,30 @@ export default function PerfilTab({
                 </div>
               </div>
 
-              <div>
-                <label className="text-[10px] uppercase font-mono font-bold text-slate-400 block mb-1">Nível de Performance</label>
-                <select
-                  value={editLevel}
-                  onChange={(e) => setEditLevel(e.target.value as any)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green text-white rounded-xl py-2 px-3 outline-none"
-                >
-                  <option value="Iniciante">Iniciante</option>
-                  <option value="Intermediário">Intermediário</option>
-                  <option value="Avançado">Avançado</option>
-                </select>
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="text-[10px] uppercase font-mono font-bold text-slate-400 block mb-1">Gênero</label>
+                  <select
+                    value={editGender}
+                    onChange={(e) => setEditGender(e.target.value as 'male' | 'female')}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 text-white rounded-xl py-2 px-3 outline-none"
+                  >
+                    <option value="male">Masculino</option>
+                    <option value="female">Feminino</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-mono font-bold text-slate-400 block mb-1">Nível de Performance</label>
+                  <select
+                    value={editLevel}
+                    onChange={(e) => setEditLevel(e.target.value as any)}
+                    className="w-full bg-[#0a101d] border border-slate-800 focus:border-blue-500 text-white rounded-xl py-2 px-3 outline-none"
+                  >
+                    <option value="Iniciante">Iniciante</option>
+                    <option value="Intermediário">Intermediário</option>
+                    <option value="Avançado">Avançado</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -439,7 +470,7 @@ export default function PerfilTab({
             </button>
             <button
               type="submit"
-              className="flex-1 bg-neon-green hover:bg-lime-500 text-slate-950 py-2.5 rounded-xl transition-colors cursor-pointer text-center select-none flex items-center justify-center gap-1"
+              className={`flex-1 ${accentBg} ${accentBgHover} text-white py-2.5 rounded-xl transition-colors cursor-pointer text-center select-none flex items-center justify-center gap-1`}
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>Salvar</span>
@@ -452,7 +483,7 @@ export default function PerfilTab({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md space-y-3">
         <div className="flex justify-between items-center pb-1">
           <div className="flex items-center gap-2">
-            <Camera className="w-4 h-4 text-neon-green" />
+            <Camera className={`w-4 h-4 ${accentText}`} />
             <h3 className="text-sm font-display font-bold text-white">Galeria de Evolução</h3>
             <span className="text-[10px] font-mono bg-slate-950 border border-slate-800 px-2 py-0.5 rounded text-gray-400">
               {galleryList.length}
@@ -461,7 +492,7 @@ export default function PerfilTab({
 
           <button
             onClick={() => setIsAddingPhoto(!isAddingPhoto)}
-            className="text-xs text-neon-green font-bold flex items-center gap-1 bg-slate-950/80 hover:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 cursor-pointer select-none"
+            className={`text-xs ${accentText} font-bold flex items-center gap-1 bg-slate-950/80 hover:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 cursor-pointer select-none`}
           >
             {isAddingPhoto ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 stroke-[3]" />}
             <span>Add Foto</span>
@@ -476,7 +507,7 @@ export default function PerfilTab({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-neon-green text-slate-950 font-bold rounded-lg hover:bg-lime-500 transition-colors cursor-pointer font-sans"
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 ${accentBg} text-white font-bold rounded-lg ${accentBgHover} transition-colors cursor-pointer font-sans`}
               >
                 <Upload className="w-4 h-4" />
                 <span>Escolher do Celular</span>
@@ -543,7 +574,7 @@ export default function PerfilTab({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md space-y-3">
         <div className="flex justify-between items-center pb-1">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-neon-green" />
+            <TrendingUp className={`w-4 h-4 ${accentText}`} />
             <h3 className="text-sm font-display font-bold text-white">Evolução de Peso</h3>
           </div>
           <span className="text-[10px] text-gray-400 font-mono">Últimas 6 atualizações</span>
@@ -594,12 +625,12 @@ export default function PerfilTab({
               {points.length > 1 && (
                 <polyline
                   fill="none"
-                  stroke="#a3e635"
+                  stroke={isFemale ? '#ec4899' : '#3b82f6'}
                   strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   points={polylineCoords}
-                  className="drop-shadow-[0_0_6px_rgba(163,230,53,0.3)]"
+                  className={isFemale ? "drop-shadow-[0_0_6px_rgba(236,72,153,0.3)]" : "drop-shadow-[0_0_6px_rgba(59,130,246,0.3)]"}
                 />
               )}
 
@@ -612,7 +643,7 @@ export default function PerfilTab({
 
                 return (
                   <g key={idx}>
-                    <circle cx={x} cy={y} r="4.5" fill="#a3e635" />
+                    <circle cx={x} cy={y} r="4.5" fill={isFemale ? '#ec4899' : '#3b82f6'} />
                     <circle cx={x} cy={y} r="1.5" fill="#0b111e" />
                     <text x={x} y={y - 9} textAnchor="middle" fill="#ffffff" fontWeight="bold" fontSize="8">{p.weight} kg</text>
                     <text x={x} y={paddingTop + chartHeight + 13} textAnchor="middle" fill="#64748b">{p.date}</text>
@@ -623,8 +654,8 @@ export default function PerfilTab({
               {/* Gradient defs */}
               <defs>
                 <linearGradient id="neonGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#a3e635" />
-                  <stop offset="100%" stopColor="#a3e635" stopOpacity="0" />
+                  <stop offset="0%" stopColor={isFemale ? '#ec4899' : '#3b82f6'} />
+                  <stop offset="100%" stopColor={isFemale ? '#ec4899' : '#3b82f6'} stopOpacity="0" />
                 </linearGradient>
               </defs>
             </svg>
@@ -641,14 +672,14 @@ export default function PerfilTab({
                 value={newWeight}
                 onChange={(e) => setNewWeight(e.target.value)}
                 placeholder="Exemplo: 81.5"
-                className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-xl py-2 px-3 pl-8 text-xs text-white outline-none font-mono"
+                className={`w-full bg-slate-950 border border-slate-800 focus:${accentBorder} rounded-xl py-2 px-3 pl-8 text-xs text-white outline-none font-mono`}
               />
               <Scale className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
               <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-mono text-xs">Kg</span>
             </div>
             <button
               type="submit"
-              className="bg-neon-green text-slate-950 font-bold text-xs py-2 px-4 rounded-xl hover:bg-lime-500 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+              className={`${accentBg} text-white font-bold text-xs py-2 px-4 rounded-xl ${accentBgHover} transition-colors cursor-pointer shrink-0 flex items-center gap-1`}
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>Registar</span>
@@ -661,7 +692,7 @@ export default function PerfilTab({
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2 text-white font-display font-bold text-sm">
-            <History className="w-4 h-4 text-neon-green" />
+            <History className={`w-4 h-4 ${accentText}`} />
             <h3>Histórico de Treinos</h3>
           </div>
           {workoutHistory.length > 0 && (
@@ -704,7 +735,7 @@ export default function PerfilTab({
                   </div>
                   <div className="bg-slate-950 px-2 py-1 rounded text-center border border-slate-850">
                     <span className="text-[9px] text-slate-550 block">Volume</span>
-                    <span className="text-xs font-bold text-neon-green font-mono">{item.totalWeightVolume}<span className="text-[8px] font-normal text-slate-400">g</span></span>
+                    <span className={`text-xs font-bold ${accentText} font-mono`}>{item.totalWeightVolume}<span className="text-[8px] font-normal text-slate-400">g</span></span>
                   </div>
                 </div>
               </div>
@@ -717,7 +748,7 @@ export default function PerfilTab({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md space-y-4">
         <div className="flex justify-between items-center pb-1">
           <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-neon-green" />
+            <Bell className={`w-4 h-4 ${accentText}`} />
             <h3 className="text-sm font-display font-bold text-white">Lembretes de Treino</h3>
             <span className="text-[10px] font-mono bg-slate-950 border border-slate-800 px-2 py-0.5 rounded text-gray-400">
               {(userProfile.reminders || []).length}
@@ -727,7 +758,7 @@ export default function PerfilTab({
           <button
             type="button"
             onClick={() => setIsAddingReminder(!isAddingReminder)}
-            className="text-xs text-neon-green font-bold flex items-center gap-1 bg-slate-950/80 hover:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 cursor-pointer select-none"
+            className={`text-xs ${accentText} font-bold flex items-center gap-1 bg-slate-950/80 hover:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 cursor-pointer select-none`}
           >
             {isAddingReminder ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 stroke-[3]" />}
             <span>Definir Dia/Hora</span>
@@ -736,10 +767,10 @@ export default function PerfilTab({
 
         {/* Real-time Simulated Alert Banner */}
         {simulatedNotification && (
-          <div className="bg-neon-green/10 border border-neon-green/35 text-white rounded-xl p-3 px-3.5 animate-bounce space-y-1 relative">
-            <span className="absolute top-2 right-2 text-neon-green text-[9px] uppercase font-mono font-bold tracking-wider">Notificação</span>
-            <div className="flex items-center gap-1.5 font-bold text-neon-green text-xs">
-              <Bell className="w-4 h-4 text-neon-green" />
+          <div className={`border rounded-xl p-3 px-3.5 animate-bounce space-y-1 relative ${isFemale ? 'bg-pink-500/10 border-pink-500/35 text-pink-300' : 'bg-blue-500/10 border-blue-500/35 text-blue-300'}`}>
+            <span className={`absolute top-2 right-2 ${accentText} text-[9px] uppercase font-mono font-bold tracking-wider`}>Notificação</span>
+            <div className={`flex items-center gap-1.5 font-bold ${accentText} text-xs`}>
+              <Bell className={`w-4 h-4 ${accentText}`} />
               <span>{simulatedNotification.title}</span>
             </div>
             <p className="text-[10px] text-slate-350 leading-snug">{simulatedNotification.message}</p>
@@ -796,7 +827,7 @@ export default function PerfilTab({
 
             <button
               type="submit"
-              className="w-full bg-neon-green hover:bg-lime-500 text-slate-950 font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer select-none"
+              className={`w-full ${accentBg} ${accentBgHover} text-white font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer select-none`}
             >
               <Check className="w-4 h-4 stroke-[2]" />
               <span>Agendar Notificação</span>
@@ -824,7 +855,7 @@ export default function PerfilTab({
                     onClick={() => onToggleReminder(rem.id)}
                     className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
                       rem.isActive 
-                        ? 'bg-neon-green/10 border-neon-green/30 text-neon-green' 
+                        ? (isFemale ? 'bg-pink-500/10 border-pink-500/30 text-pink-400' : 'bg-blue-500/10 border-blue-500/30 text-blue-400') 
                         : 'bg-slate-900 border-slate-800 text-slate-600'
                     }`}
                     title={rem.isActive ? 'Desativar Alerta' : 'Ativar Alerta'}
@@ -850,7 +881,7 @@ export default function PerfilTab({
                     <button
                       type="button"
                       onClick={() => triggerSimulation(rem.label, rem.dayOfWeek, rem.time)}
-                      className="text-[9px] font-bold text-slate-400 hover:text-neon-green bg-slate-900 hover:bg-slate-850 px-2 py-1 rounded border border-slate-800 hover:border-neon-green/30 transition-all font-mono cursor-pointer"
+                      className={`text-[9px] font-bold text-slate-400 hover:${accentText} bg-slate-900 hover:bg-slate-850 px-2 py-1 rounded border border-slate-800 hover:${accentBorder} transition-all font-mono cursor-pointer`}
                       title="Simular disparo de lembrete"
                     >
                       Testar
@@ -995,7 +1026,7 @@ export default function PerfilTab({
           >
             <div className="flex justify-between items-center border-b border-slate-800 pb-2">
               <div className="flex items-center gap-2">
-                <ZoomIn className="w-4 h-4 text-neon-green" />
+                <ZoomIn className={`w-4 h-4 ${accentText}`} />
                 <h3 className="text-sm font-display font-extrabold text-white">Posicionar Foto</h3>
               </div>
               <button
@@ -1065,7 +1096,11 @@ export default function PerfilTab({
                     </svg>
                     
                     {/* Glowing Guideline Circle */}
-                    <div className="w-[178px] h-[178px] rounded-full border-2 border-dashed border-neon-green/90 absolute shadow-[0_0_15px_rgba(163,230,53,0.3)]"></div>
+                    <div className={`w-[178px] h-[178px] rounded-full border-2 border-dashed absolute ${
+                      isFemale 
+                        ? 'border-pink-500/90 shadow-[0_0_15px_rgba(244,63,94,0.3)]' 
+                        : 'border-blue-500/90 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                    }`}></div>
                   </div>
                 </div>
               </div>
@@ -1077,7 +1112,7 @@ export default function PerfilTab({
               <div className="space-y-1">
                 <div className="flex justify-between items-center text-[10px] font-mono font-bold text-slate-400">
                   <span>ZOOM</span>
-                  <span className="text-neon-green">{cropScale.toFixed(1)}x</span>
+                  <span className={`${accentText}`}>{cropScale.toFixed(1)}x</span>
                 </div>
                 <input 
                   type="range"
@@ -1086,7 +1121,7 @@ export default function PerfilTab({
                   step="0.05"
                   value={cropScale}
                   onChange={(e) => setCropScale(parseFloat(e.target.value))}
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neon-green"
+                  className={`w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer ${isFemale ? 'accent-pink-500' : 'accent-blue-500'}`}
                 />
               </div>
 
@@ -1094,7 +1129,7 @@ export default function PerfilTab({
               <div className="space-y-1">
                 <div className="flex justify-between items-center text-[10px] font-mono font-bold text-slate-400">
                   <span>ROTAÇÃO</span>
-                  <span className="text-neon-green">{cropRotate}°</span>
+                  <span className={`${accentText}`}>{cropRotate}°</span>
                 </div>
                 <input 
                   type="range"
@@ -1102,7 +1137,7 @@ export default function PerfilTab({
                   max="180"
                   value={cropRotate}
                   onChange={(e) => setCropRotate(parseInt(e.target.value))}
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neon-green"
+                  className={`w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer ${isFemale ? 'accent-pink-500' : 'accent-blue-500'}`}
                 />
               </div>
 
@@ -1182,7 +1217,7 @@ export default function PerfilTab({
                   };
                   img.src = cropSrc;
                 }}
-                className="flex-1 bg-neon-green hover:bg-lime-500 text-slate-950 py-2.5 rounded-xl transition-colors cursor-pointer text-center flex items-center justify-center gap-1 shadow-md"
+                className={`flex-1 ${accentBg} ${accentBgHover} text-white py-2.5 rounded-xl transition-colors cursor-pointer text-center flex items-center justify-center gap-1 shadow-md`}
               >
                 <Check className="w-4 h-4 stroke-[3]" />
                 <span>Pronto</span>

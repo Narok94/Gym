@@ -8,7 +8,7 @@ export interface PersistentWorkoutState {
 }
 
 const STORAGE_KEY = 'tatu_gym_active_workout_state';
-const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes in milliseconds
+const TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 export function usePersistentWorkout(
   activeWorkout: WorkoutSession | null,

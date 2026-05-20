@@ -17,6 +17,23 @@ interface WorkoutContextType {
   workoutHistory: HistorySession[];
   setWorkoutHistory: React.Dispatch<React.SetStateAction<HistorySession[]>>;
   
+  showFinishOverlay: boolean;
+  setShowFinishOverlay: React.Dispatch<React.SetStateAction<boolean>>;
+  congratsPhoto: string | null;
+  setCongratsPhoto: React.Dispatch<React.SetStateAction<string | null>>;
+  lastFinishedWorkoutStats: {
+    name: string;
+    duration: number;
+    volume: number;
+    setsCount: number;
+  } | null;
+  setLastFinishedWorkoutStats: React.Dispatch<React.SetStateAction<{
+    name: string;
+    duration: number;
+    volume: number;
+    setsCount: number;
+  } | null>>;
+
   // Custom Hook Operations
   getTimerRemaining: (setId: string, defaultDuration?: number) => number;
   onUpdateTimer: (setId: string, seconds: number) => void;
@@ -38,6 +55,7 @@ interface WorkoutContextType {
     height: number;
     currentWeight: number;
     level: 'Iniciante' | 'Intermediário' | 'Avançado';
+    gender?: 'male' | 'female';
   }) => void;
   handleAddGalleryPhoto: (photoBase64OrUrl: string) => void;
   handleDeleteGalleryPhoto: (photoUrl: string) => void;
@@ -45,6 +63,16 @@ interface WorkoutContextType {
   handleDeleteReminder: (id: string) => void;
   handleToggleReminder: (id: string) => void;
   handleResetAllData: () => void;
+  isFemale: boolean;
+  accentText: string;
+  accentTextPlain: string;
+  accentBg: string;
+  accentBgHover: string;
+  accentBorder: string;
+  accentGlow: string;
+  accentRing: string;
+  accentFill: string;
+  accentBadge: string;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -115,6 +143,15 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     return MOCK_WORKOUT_HISTORY;
   });
+
+  const [showFinishOverlay, setShowFinishOverlay] = useState(false);
+  const [congratsPhoto, setCongratsPhoto] = useState<string | null>(null);
+  const [lastFinishedWorkoutStats, setLastFinishedWorkoutStats] = useState<{
+    name: string;
+    duration: number;
+    volume: number;
+    setsCount: number;
+  } | null>(null);
 
   useEffect(() => {
     localStorage.setItem('tatu_isAuthenticated', String(isAuthenticated));
@@ -308,6 +345,14 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       streakDays: prev.streakDays + 1
     }));
 
+    setLastFinishedWorkoutStats({
+      name: activeWorkout.name,
+      duration: durationMinutes,
+      volume: totalVolume,
+      setsCount: totalSetsNum
+    });
+    
+    setShowFinishOverlay(true);
     setActiveWorkout(null);
   };
 
@@ -337,6 +382,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     height: number;
     currentWeight: number;
     level: 'Iniciante' | 'Intermediário' | 'Avançado';
+    gender?: 'male' | 'female';
   }) => {
     setUserProfile((prev) => {
       const weightHistory = [...(prev.weightHistory || [])];
@@ -405,6 +451,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       name: 'Henrique Silva',
       avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
       level: 'Iniciante',
+      gender: 'male',
       streakDays: 0,
       height: 180,
       currentWeight: 80.0,
@@ -415,6 +462,17 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setWorkoutHistory([]);
     setActiveWorkout(null);
   };
+
+  const isFemale = userProfile.gender === 'female';
+  const accentText = isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold';
+  const accentTextPlain = isFemale ? 'text-pink-400' : 'text-blue-450';
+  const accentBg = isFemale ? 'bg-pink-600' : 'bg-blue-600';
+  const accentBgHover = isFemale ? 'hover:bg-pink-500' : 'hover:bg-blue-500';
+  const accentBorder = isFemale ? 'border-pink-500/30' : 'border-blue-500/30';
+  const accentGlow = isFemale ? 'shadow-[0_4px_25px_rgba(236,72,153,0.35)]' : 'shadow-[0_4px_25px_rgba(37,99,235,0.35)]';
+  const accentRing = isFemale ? 'focus:ring-pink-500 focus:border-pink-500' : 'focus:ring-blue-500 focus:border-blue-500';
+  const accentFill = isFemale ? 'fill-pink-500 text-pink-500' : 'fill-blue-500 text-blue-500';
+  const accentBadge = isFemale ? 'bg-pink-500/10 text-pink-400 border border-pink-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
 
   return (
     <WorkoutContext.Provider
@@ -431,6 +489,12 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setActiveWorkout,
         workoutHistory,
         setWorkoutHistory,
+        showFinishOverlay,
+        setShowFinishOverlay,
+        congratsPhoto,
+        setCongratsPhoto,
+        lastFinishedWorkoutStats,
+        setLastFinishedWorkoutStats,
         getTimerRemaining: getOrStartTimer,
         onUpdateTimer: updateTimerRemaining,
         clearTimer,
@@ -449,7 +513,17 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         handleAddReminder,
         handleDeleteReminder,
         handleToggleReminder,
-        handleResetAllData
+        handleResetAllData,
+        isFemale,
+        accentText,
+        accentTextPlain,
+        accentBg,
+        accentBgHover,
+        accentBorder,
+        accentGlow,
+        accentRing,
+        accentFill,
+        accentBadge
       }}
     >
       {children}

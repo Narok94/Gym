@@ -7,34 +7,33 @@ import { WorkoutSession, WorkoutExercise, ExerciseSet, Exercise } from '../types
 import { COMPREHENSIVE_EXERCISES } from '../data';
 import ExerciseGifPlayer from './ExerciseGifPlayer';
 import ActiveExerciseCard from './ActiveExerciseCard';
+import { useWorkout } from '../WorkoutContext';
 
-interface ActiveWorkoutTabProps {
-  activeWorkout: WorkoutSession | null;
-  workoutTemplates: WorkoutSession[];
-  onStartWorkout: (workoutId: string) => void;
-  onUpdateSet: (exerciseId: string, setId: string, weight: number, reps: number, isCompleted: boolean) => void;
-  onAddSet: (exerciseId: string) => void;
-  onDeleteSet: (exerciseId: string, setId: string) => void;
-  onAddExercise: (exercise: Exercise) => void;
-  onFinishWorkout: (durationMinutes: number, totalVolume: number, totalSets: number) => void;
-  onCancelActiveWorkout: () => void;
-  getTimerRemaining: (setId: string) => number;
-  onUpdateTimer: (setId: string, seconds: number) => void;
-}
+export default function ActiveWorkoutTab() {
+  const {
+    activeWorkout,
+    workoutTemplates,
+    handleStartWorkout: onStartWorkout,
+    handleUpdateSet: onUpdateSet,
+    handleAddSet: onAddSet,
+    handleDeleteSet: onDeleteSet,
+    handleAddExerciseToActive: onAddExercise,
+    handleFinishWorkout: onFinishWorkout,
+    handleCancelActiveWorkout: onCancelActiveWorkout,
+    getTimerRemaining,
+    onUpdateTimer,
+    isFemale,
+    accentBg,
+    accentBgHover,
+    accentBorder,
+    accentGlow,
+    accentRing,
+    accentFill,
+    accentText,
+    accentTextPlain,
+    accentBadge
+  } = useWorkout();
 
-export default function ActiveWorkoutTab({
-  activeWorkout,
-  workoutTemplates,
-  onStartWorkout,
-  onUpdateSet,
-  onAddSet,
-  onDeleteSet,
-  onAddExercise,
-  onFinishWorkout,
-  onCancelActiveWorkout,
-  getTimerRemaining,
-  onUpdateTimer
-}: ActiveWorkoutTabProps) {
   // Active Workout Timer (how long the workout has been running)
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
   const workoutTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,25 +51,6 @@ export default function ActiveWorkoutTab({
 
   // Track if they want to cancel (confirmation state)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-
-  // Track expanded exercises during active workout (default to first two exercises expanded)
-  const [expandedIds, setExpandedIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (activeWorkout && activeWorkout.exercises.length > 0 && expandedIds.length === 0) {
-      // Expand both of the first 2 exercises to showcase the dual active independent timer mechanics
-      const ids = activeWorkout.exercises.slice(0, 2).map(e => e.id);
-      setExpandedIds(ids);
-    }
-  }, [activeWorkout, expandedIds.length]);
-
-  const toggleExpandExercise = (id: string) => {
-    setExpandedIds((prev) => 
-      prev.includes(id) 
-        ? prev.filter(item => item !== id) 
-        : [...prev, id]
-    );
-  };
 
   // Initialize and run the main Workout timer
   useEffect(() => {
@@ -189,15 +169,18 @@ export default function ActiveWorkoutTab({
 
   // Render Workout Selector if no workout is active
   if (!activeWorkout) {
+    const dumbbellColorClass = isFemale ? 'text-pink-500' : 'text-blue-400';
+    const activeTextHighlight = isFemale ? 'text-pink-400' : 'text-blue-400 font-bold';
+
     return (
-      <div className="space-y-6 animate-fade-in px-1 text-center py-10">
-        <div className="w-16 h-16 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center text-neon-green mx-auto shadow-lg mb-4">
+      <div className="space-y-6 animate-fade-in px-1 text-center py-10 relative z-15">
+        <div className={`w-16 h-16 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center ${dumbbellColorClass} mx-auto shadow-lg mb-4`}>
           <Dumbbell className="w-8 h-8" />
         </div>
         <div className="space-y-2.5">
           <h2 className="text-xl font-display font-extrabold text-white">Nenhum Treino Ativo</h2>
           <p className="text-gray-400 text-xs sm:text-sm max-w-xs sm:max-w-sm mx-auto leading-relaxed">
-            Nenhuma sessão de treino iniciada. Vá até à aba <span className="text-neon-green font-bold">Dashboard</span> e comece o seu treino recomendado do dia! 🏋️⚡
+            Nenhuma sessão de treino iniciada. Vá até à aba <span className={`${activeTextHighlight} font-bold`}>Dashboard</span> e comece o seu treino recomendado do dia! 🏋️⚡
           </p>
         </div>
 
@@ -213,19 +196,19 @@ export default function ActiveWorkoutTab({
               onClick={() => onStartWorkout(template.id)}
             >
               <div className="space-y-1 pr-4">
-                <h3 className="text-sm font-display font-bold text-white group-hover:text-neon-green transition-colors">
+                <h3 className={`text-sm font-display font-bold text-white group-hover:${isFemale ? 'text-pink-500' : 'text-blue-400'} transition-colors`}>
                   {template.name}
                 </h3>
                 <p className="text-[11px] text-gray-400 font-medium line-clamp-1">
                   {template.exercises.map(e => e.exercise.name).slice(0, 3).join(', ')}...
                 </p>
-                <div className="flex gap-2 pt-1">
+                <div className="flex gap-2 pt-1 font-mono">
                   <span className="text-[9px] font-mono bg-slate-950 font-semibold px-2 py-0.5 rounded text-gray-400">
                     {template.exercises.length} Exercícios
                   </span>
                 </div>
               </div>
-              <div className="shrink-0 w-8 h-8 rounded-full bg-neon-green/10 text-neon-green group-hover:bg-neon-green group-hover:text-slate-950 flex items-center justify-center transition-all">
+              <div className={`shrink-0 w-8 h-8 rounded-full ${isFemale ? 'bg-pink-500/10 text-pink-400 group-hover:bg-pink-500' : 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-600'} group-hover:text-slate-950 flex items-center justify-center transition-all`}>
                 <ChevronRight className="w-4 h-4" />
               </div>
             </div>
@@ -241,13 +224,20 @@ export default function ActiveWorkoutTab({
     (sum, e) => sum + e.sets.filter(s => s.isCompleted).length, 0
   );
 
+  // Calculate total training load volume in real-time
+  const currentVolume = activeWorkout.exercises.reduce((sum, e) => {
+    return sum + e.sets.reduce((setSum, s) => {
+      return s.isCompleted ? setSum + (s.weight * s.reps) : setSum;
+    }, 0);
+  }, 0);
+
   return (
-    <div className="space-y-5 animate-fade-in pb-28 px-0.5 relative">
+    <div className="space-y-5 animate-fade-in pb-28 px-0.5 relative z-10">
       {/* Header Info */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-md space-y-3">
         <div className="flex justify-between items-start gap-3">
           <div>
-            <span className="text-xs uppercase font-mono tracking-widest text-neon-green font-bold">EM ANDAMENTO</span>
+            <span className={`text-xs uppercase font-mono tracking-widest ${isFemale ? 'text-pink-400' : 'text-blue-400'} font-black`}>EM ANDAMENTO</span>
             <h2 className="text-2xl font-display font-black text-white tracking-tight">{activeWorkout.name}</h2>
           </div>
           <button 
@@ -260,24 +250,28 @@ export default function ActiveWorkoutTab({
           </button>
         </div>
 
-        <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-xs">
-          <div className="flex items-center gap-1.5 text-gray-300 font-mono font-medium">
-            <Clock className="w-4 h-4 text-neon-green" />
-            <span>Tempo:</span>
-            <span className="text-white font-bold">{formatTime(workoutSeconds)}</span>
+        {/* Gorgeous, gamified 3-column layout */}
+        <div className="grid grid-cols-3 items-center pt-3 border-t border-slate-800/60 text-xs gap-1.5">
+          <div className="flex items-center gap-1.5 text-gray-300 font-mono">
+            <Clock className={`w-3.5 h-3.5 ${isFemale ? 'text-pink-550' : 'text-blue-400'} shrink-0`} />
+            <span className={`${isFemale ? 'text-pink-500 font-black' : 'text-blue-400 font-black'}`}>{formatTime(workoutSeconds)}</span>
           </div>
 
-          <div className="flex items-center gap-1 text-gray-400">
-            <span>Progresso:</span>
-            <strong className="text-neon-green font-mono">{completedSets}</strong>/
-            <span className="font-mono">{totalSets} séries</span>
+          <div className="flex items-center justify-center gap-1 text-gray-400 font-mono">
+            <span className="hidden sm:inline">Sets: </span>
+            <strong className={`${isFemale ? 'text-pink-500' : 'text-blue-400'} font-black`}>{completedSets}/{totalSets}</strong>
+          </div>
+
+          <div className={`flex items-center justify-end gap-1 ${isFemale ? 'text-pink-400' : 'text-blue-400'} font-mono font-bold`}>
+            <Award className={`w-3.5 h-3.5 ${isFemale ? 'text-pink-400' : 'text-blue-400'} shrink-0`} />
+            <span className="text-[11px]">Vol: <span className="text-white font-extrabold">{currentVolume}</span> kg</span>
           </div>
         </div>
       </div>
 
       {/* Confirmation modal overlay for canceling workout */}
       {showCancelConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-xs w-full text-center space-y-4 shadow-2xl">
             <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
@@ -320,8 +314,6 @@ export default function ActiveWorkoutTab({
             onDeleteSet={onDeleteSet}
             onAddSet={onAddSet}
             handleSetCheckChange={handleSetCheckChange}
-            isExpanded={expandedIds.includes(we.id)}
-            onToggleExpand={() => toggleExpandExercise(we.id)}
             getTimerRemaining={getTimerRemaining}
             onUpdateTimer={onUpdateTimer}
           />
@@ -335,7 +327,7 @@ export default function ActiveWorkoutTab({
           onClick={() => setIsAddPickerOpen(true)}
           className="w-full flex items-center justify-center gap-2 bg-slate-900/40 hover:bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-semibold text-gray-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer select-none"
         >
-          <Plus className="w-4 h-4 text-neon-green" />
+          <Plus className={`w-4 h-4 ${isFemale ? 'text-pink-500' : 'text-blue-400'}`} />
           <span>Inserir Outro Exercício no Treino</span>
         </button>
 
@@ -343,16 +335,16 @@ export default function ActiveWorkoutTab({
         <button
           type="button"
           onClick={handleFinish}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-neon-green to-lime-500 text-slate-950 font-bold font-display rounded-2xl py-3.5 px-4 shadow-xl hover:shadow-neon-green/20 hover:scale-[1.01] transition-all cursor-pointer select-none text-sm"
+          className={`w-full flex items-center justify-center gap-2 ${accentBg} ${accentBgHover} text-white font-bold font-display rounded-2xl py-3.5 px-4 shadow-xl active:scale-[0.98] transition-all cursor-pointer select-none text-sm`}
         >
-          <CheckSquare className="w-5 h-5 fill-slate-950" />
+          <CheckSquare className="w-5 h-5 fill-slate-900" />
           <span>Finalizar Treino</span>
         </button>
       </div>
 
       {/* Insert exercise picker dropdown modal */}
       {isAddPickerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 w-full max-w-sm h-[500px] flex flex-col space-y-3 shadow-2xl">
             <div className="flex justify-between items-center">
               <h3 className="font-display font-extrabold text-white text-sm">Adicionar ao treino atual</h3>
@@ -367,10 +359,10 @@ export default function ActiveWorkoutTab({
 
             <input
               type="text"
-              placeholder="Pesquisar exercício ou grupo..."
+              placeholder="Pesquisar exercício..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
+              className={`w-full bg-slate-950 border border-slate-800 focus:outline-none rounded-xl py-2 px-3 text-xs text-white focus:ring-1 ${accentRing}`}
             />
 
             <div className="flex-1 overflow-y-auto pr-1 space-y-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800/40">
@@ -384,7 +376,7 @@ export default function ActiveWorkoutTab({
                     className="w-full text-left bg-slate-900/60 hover:bg-slate-800/80 p-2.5 rounded-lg text-xs font-semibold text-white flex items-center justify-between transition-colors border border-transparent hover:border-slate-700/60 mb-1"
                   >
                     <span>{ex.name}</span>
-                    <span className="text-[9px] font-mono uppercase bg-slate-950 px-2 py-0.5 rounded text-gray-500">
+                    <span className="text-[9px] font-mono uppercase bg-slate-950 px-2 py-0.5 rounded text-gray-550">
                       {ex.category}
                     </span>
                   </button>

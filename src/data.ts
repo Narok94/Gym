@@ -238,6 +238,7 @@ export const MOCK_USER_PROFILE: UserProfile = {
   name: 'Henrique Silva',
   avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
   level: 'Intermediário',
+  gender: 'male',
   streakDays: 4,
   height: 180,
   currentWeight: 81.2,

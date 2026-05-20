@@ -1,20 +1,25 @@
 import React from 'react';
-import { Flame, Dumbbell, Zap } from 'lucide-react';
-import { WorkoutSession, UserProfile } from '../types';
+import { Flame, Dumbbell } from 'lucide-react';
+import { useWorkout } from '../WorkoutContext';
 
-interface DashboardTabProps {
-  userProfile: UserProfile;
-  workoutTemplates: WorkoutSession[];
-  onStartWorkout: (workoutId: string) => void;
-  completedHistoryCount: number;
-}
+export default function DashboardTab() {
+  const { 
+    userProfile, 
+    workoutTemplates, 
+    workoutHistory, 
+    handleStartWorkout,
+    isFemale,
+    accentBg,
+    accentBgHover,
+    accentBorder,
+    accentGlow,
+    accentRing,
+    accentFill,
+    accentText,
+    accentTextPlain,
+    accentBadge
+  } = useWorkout();
 
-export default function DashboardTab({
-  userProfile,
-  workoutTemplates,
-  onStartWorkout,
-  completedHistoryCount
-}: DashboardTabProps) {
   // Determine suggested workout of the day.
   const todayIndex = new Date().getDay(); // 0 is Sunday, 1 is Monday, etc.
   let recommendedTemplate = workoutTemplates[0]; // default A
@@ -36,17 +41,42 @@ export default function DashboardTab({
     trainingFocus = 'Foco em Performance Total';
   }
 
-  // Weekday constancy logic
-  const weekDays = [
-    { key: 'seg', label: 'S', name: 'Segunda', done: true },
-    { key: 'ter', label: 'T', name: 'Terça', done: true },
-    { key: 'qua', label: 'Q', name: 'Quarta', done: false },
-    { key: 'qui', label: 'Q', name: 'Quinta', done: true },
-    { key: 'sex', label: 'S', name: 'Sexta', done: false },
-    { key: 'sab', label: 'S', name: 'Sábado', done: false },
-    { key: 'dom', label: 'D', name: 'Domingo', done: false }
-  ];
+  // Dynamic weekly constancy logic from history
+  const getWeekDays = () => {
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday...
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0);
 
+    const weekdayKeys = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'] as const;
+    const labels = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'] as const;
+    const names = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] as const;
+
+    return weekdayKeys.map((key, index) => {
+      const dayDate = new Date(monday);
+      dayDate.setDate(monday.getDate() + index);
+      const dayStart = new Date(dayDate);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayDate);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const hasWorkout = workoutHistory.some((historyItem) => {
+        const completedDate = new Date(historyItem.completedAt);
+        return completedDate >= dayStart && completedDate <= dayEnd;
+      });
+
+      return {
+        key,
+        label: labels[index],
+        name: names[index],
+        done: hasWorkout
+      };
+    });
+  };
+
+  const weekDays = getWeekDays();
   const firstName = userProfile.name ? userProfile.name.split(' ')[0] : 'Atleta';
 
   return (
@@ -72,21 +102,22 @@ export default function DashboardTab({
         </div>
 
         {/* Overlapping Streak Flame badge at the top edge */}
-        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-[#0d1527] border border-[#1b2c45] p-3 rounded-full shadow-lg">
-          <Flame className="w-5 h-5 text-neon-green fill-neon-green" />
+        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-[#0c1221] border border-[#1b2c45] py-1.5 px-3 rounded-full shadow-lg flex items-center gap-1">
+          <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
+          <span className="text-xs font-mono font-bold text-white leading-none">{userProfile.streakDays || 0} Dias</span>
         </div>
 
         {/* Content stacked neatly */}
         <div className="relative z-10 w-full flex flex-col items-center space-y-4 pt-3">
           {/* Recommended Badge Tag */}
-          <div className="bg-[#14261f] border border-[#204938] rounded-full px-4 py-1">
-            <span className="text-[10px] font-mono tracking-wider text-neon-green font-black">
+          <div className={`border rounded-full px-4 py-1 bg-slate-950/80 ${isFemale ? 'border-pink-500/20 text-pink-400' : 'border-blue-500/20 text-blue-400 font-extrabold'}`}>
+            <span className="text-[10px] font-mono tracking-wider font-extrabold uppercase">
               RECOMENDADO DE HOJE
             </span>
           </div>
 
-          {/* Central Rounded Square with Glowing Green Dumbbell */}
-          <div className="w-14 h-14 bg-[#0a101d] border border-[#16253c] rounded-2xl flex items-center justify-center text-neon-green shadow-xl">
+          {/* Central Rounded Square with Glowing Dynamic Dumbbell */}
+          <div className={`w-14 h-14 bg-[#0a101d] border border-[#16253c] rounded-2xl flex items-center justify-center ${isFemale ? 'text-pink-400 shadow-[0_0_15px_rgba(244,63,94,0.15)]' : 'text-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.15)]'} shadow-xl`}>
             <Dumbbell className="w-7 h-7" />
           </div>
 
@@ -96,26 +127,26 @@ export default function DashboardTab({
               {recommendedTemplate.name}
             </h2>
             <p className="text-xs text-slate-300 font-sans max-w-[260px] leading-relaxed mx-auto font-medium">
-              {trainingFocus} • <span className="text-neon-green font-bold">{recommendedTemplate.exercises.length} Exercícios</span>
+              {trainingFocus} • <span className={`${isFemale ? 'text-pink-400' : 'text-blue-400 font-extrabold'} font-bold`}>{recommendedTemplate.exercises.length} Exercícios</span>
             </p>
           </div>
 
-          {/* Large Neon Green Button */}
+          {/* Large dynamic CTA Button */}
           <button
-            onClick={() => onStartWorkout(recommendedTemplate.id)}
-            className="w-full flex items-center justify-center gap-2.5 bg-neon-green hover:bg-lime-400 active:scale-[0.98] text-slate-950 font-display font-black text-xs py-4 px-6 rounded-2xl shadow-[0_4px_25px_rgba(163,230,53,0.35)] transition-all cursor-pointer select-none tracking-widest uppercase mt-2"
+            onClick={() => handleStartWorkout(recommendedTemplate.id)}
+            className={`w-full flex items-center justify-center gap-2.5 ${accentBg} ${accentBgHover} active:scale-[0.98] text-white font-display font-black text-xs py-4 px-6 rounded-2xl shadow-lg transition-all cursor-pointer select-none tracking-widest uppercase mt-2`}
             id="btn-start-today-workout"
           >
-            <Dumbbell className="w-4 h-4 fill-slate-950 stroke-[2.5]" />
+            <Dumbbell className="w-4 h-4 fill-white stroke-[2.5]" />
             <span>ESMAGAR TREINO</span>
-            <span className="text-slate-950 font-sans font-bold">⚡</span>
+            <span className="text-white font-sans font-bold">⚡</span>
           </button>
         </div>
       </div>
 
       {/* 3. Consistency Tracker Card below */}
       <div className="bg-[#0c1221]/90 border border-[#142035] rounded-[24px] p-5 shadow-lg space-y-4">
-        <h3 className="text-xs font-display font-black text-slate-350 tracking-wider uppercase text-center">
+        <h3 className="text-xs font-display font-bold text-slate-300 tracking-wider uppercase text-center">
           Constância Semanal
         </h3>
         
@@ -127,7 +158,7 @@ export default function DashboardTab({
               <div 
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                   day.done 
-                    ? 'bg-[#1b2f21] border border-[#305e3a] text-neon-green' 
+                    ? (isFemale ? 'bg-pink-950 border border-pink-500/20 text-pink-400 font-bold' : 'bg-blue-950 border border-blue-550 text-blue-400 font-bold') 
                     : 'bg-[#080d19]/40 border border-[#1c2e4a] text-slate-600'
                 }`}
               >

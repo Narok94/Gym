@@ -51,6 +51,7 @@ export interface UserProfile {
   name: string;
   avatarUrl: string;
   level: 'Iniciante' | 'Intermediário' | 'Avançado';
+  gender?: 'male' | 'female';
   streakDays: number;
   height: number; // cm
   currentWeight: number; // kg
