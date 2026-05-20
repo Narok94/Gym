@@ -6,8 +6,8 @@ import { usePersistentWorkout } from './hooks/usePersistentWorkout';
 interface WorkoutContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: (auth: boolean) => void;
-  activeTab: 'dashboard' | 'active-workout' | 'exercises' | 'profile';
-  setActiveTab: (tab: 'dashboard' | 'active-workout' | 'exercises' | 'profile') => void;
+  activeTab: 'dashboard' | 'active-workout' | 'profile';
+  setActiveTab: (tab: 'dashboard' | 'active-workout' | 'profile') => void;
   userProfile: UserProfile;
   setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
   workoutTemplates: WorkoutSession[];
@@ -85,10 +85,10 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return false;
   });
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'active-workout' | 'exercises' | 'profile'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'active-workout' | 'profile'>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tatu_activeTab');
-      if (stored === 'dashboard' || stored === 'active-workout' || stored === 'exercises' || stored === 'profile') {
+      if (stored === 'dashboard' || stored === 'active-workout' || stored === 'profile') {
         return stored;
       }
     }
@@ -211,11 +211,13 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return {
           ...we,
           sets: we.sets.map((s, idx) => {
-            const historicalWeight = preloadedWeights[idx] !== undefined ? preloadedWeights[idx] : s.weight;
+            const hasHistory = preloadedWeights[idx] !== undefined;
+            const historicalWeight = hasHistory ? preloadedWeights[idx] : s.weight;
             return {
               ...s,
               weight: historicalWeight,
-              isCompleted: false
+              isCompleted: false,
+              isPreloaded: hasHistory
             };
           })
         };
@@ -243,9 +245,13 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const updatedExercises = activeWorkout.exercises.map((we) => {
       if (we.id === exerciseId) {
         const targetExerciseId = we.exercise.id;
-        const updatedSets = we.sets.map((set) => {
+        const isFirstSet = we.sets.length > 0 && we.sets[0].id === setId;
+        const updatedSets = we.sets.map((set, idx) => {
           if (set.id === setId) {
-            return { ...set, weight, reps, isCompleted };
+            return { ...set, weight, reps, isCompleted, isPreloaded: false };
+          }
+          if (isFirstSet && idx > 0) {
+            return { ...set, weight, reps, isPreloaded: false };
           }
           return set;
         });
@@ -505,16 +511,16 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setActiveWorkout(null);
   };
 
-  const isFemale = false; // 100% unified global theme
-  const accentText = 'text-[#0055ff] font-extrabold';
-  const accentTextPlain = 'text-[#0055ff]';
-  const accentBg = 'bg-[#0055ff]';
-  const accentBgHover = 'hover:bg-[#0044ee]';
-  const accentBorder = 'border-[#0055ff]/30';
-  const accentGlow = 'shadow-[0_4px_25px_rgba(0,85,255,0.15)]';
-  const accentRing = 'focus:ring-[#0055ff] focus:border-[#0055ff]';
-  const accentFill = 'fill-[#0055ff] text-[#0055ff]';
-  const accentBadge = 'bg-[#0055ff]/10 text-[#0055ff] border border-[#0055ff]/20';
+  const isFemale = userProfile.gender === 'female';
+  const accentText = isFemale ? 'text-[#FF1493] font-bold' : 'text-[#0055ff] font-bold';
+  const accentTextPlain = isFemale ? 'text-[#FF1493]' : 'text-[#0055ff]';
+  const accentBg = isFemale ? 'bg-[#FF1493]' : 'bg-[#0055ff]';
+  const accentBgHover = isFemale ? 'hover:bg-[#E0115F]' : 'hover:bg-[#0044ee]';
+  const accentBorder = isFemale ? 'border-[#FF1493]/35' : 'border-[#0055ff]/35';
+  const accentGlow = isFemale ? 'shadow-[0_8px_30px_rgba(255,20,147,0.06)]' : 'shadow-[0_8px_30px_rgba(0,85,255,0.06)]';
+  const accentRing = isFemale ? 'focus:ring-[#FF1493] focus:border-[#FF1493]' : 'focus:ring-[#0055ff] focus:border-[#0055ff]';
+  const accentFill = isFemale ? 'fill-[#FF1493] text-[#FF1493]' : 'fill-[#0055ff] text-[#0055ff]';
+  const accentBadge = isFemale ? 'bg-[#FF1493]/10 text-[#FF1493] border border-[#FF1493]/20' : 'bg-[#0055ff]/10 text-[#0055ff] border border-[#0055ff]/20';
 
   return (
     <WorkoutContext.Provider

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { motion } from 'motion/react';
 import { 
   LayoutGrid, Dumbbell, Compass, User, 
   CheckCircle2, Sparkles, Award, Star, TrendingUp,
@@ -13,7 +14,6 @@ import {
 
 import DashboardTab from './components/DashboardTab';
 import ActiveWorkoutTab from './components/ActiveWorkoutTab';
-import ExercisesTab from './components/ExercisesTab';
 import PerfilTab from './components/PerfilTab';
 import { useWorkout } from './WorkoutContext';
 
