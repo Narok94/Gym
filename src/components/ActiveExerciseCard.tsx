@@ -135,10 +135,11 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
   if (!isExpanded) {
     return (
       <div 
-        className="bg-[#0b121f] border border-[#142238]/60 rounded-2xl p-4 flex items-center justify-between transition-all select-none"
+        onClick={onToggleExpand}
+        className="bg-[#0b121f] border border-[#142238]/65 hover:border-[#23334e] rounded-2xl p-4 flex items-center justify-between transition-all select-none cursor-pointer group active:scale-[0.99] duration-150"
       >
         <div className="flex-1 min-w-0 pr-3">
-          <span className="text-base font-display font-black text-slate-300">
+          <span className="text-base font-display font-black text-slate-300 group-hover:text-neon-green transition-colors">
             {exIdx + 1}. {we.exercise.name}
           </span>
         </div>
@@ -149,17 +150,12 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
           <span className="text-[10px] font-mono bg-slate-950 px-2.5 py-1 rounded text-gray-400 font-bold">
             {we.sets.length} {we.sets.length === 1 ? 'série' : 'séries'}
           </span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onToggleExpand) onToggleExpand();
-            }}
-            className="w-11 h-11 rounded-full bg-[#182337] border border-[#23334e] hover:border-slate-700 hover:text-white text-slate-300 flex items-center justify-center transition-all cursor-pointer select-none active:scale-[0.88]"
-            title="Saber Mais"
+          <div
+            className="w-11 h-11 rounded-full bg-[#182337] border border-[#23334e] group-hover:border-slate-700 text-slate-300 flex items-center justify-center transition-all shadow-sm active:scale-[0.88]"
+            title="Expandir Exercício"
           >
             <ChevronDown className="w-6 h-6 stroke-[2.5]" />
-          </button>
+          </div>
         </div>
       </div>
     );
@@ -167,10 +163,13 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
 
   return (
     <div 
-      className="bg-[#0b121f] border border-[#142238] rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-800 transition-colors w-full overflow-hidden select-none"
+      className="bg-[#0b121f] border border-[#142238] rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-800 transition-colors w-full overflow-hidden select-none animate-fade-in"
     >
-      {/* Exercise Details Header */}
-      <div className="flex justify-between items-start gap-2 w-full border-b border-slate-900/60 pb-3">
+      {/* Exercise Details Header - Clickable upper container to collapse */}
+      <div 
+        onClick={onToggleExpand}
+        className="flex justify-between items-start gap-3 w-full border-b border-slate-900/60 pb-3 cursor-pointer group select-none active:opacity-95"
+      >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-slate-950/60 border border-slate-800 text-neon-green font-extrabold rounded-md">
@@ -179,7 +178,7 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Stop propagation to avoid collapsing the card
                 setIsGifExpanded((prev) => !prev);
               }}
               className={`flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded transition-all cursor-pointer ${
@@ -194,20 +193,15 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
             </button>
           </div>
           <div className="flex items-center gap-2 justify-between w-full mt-2">
-            <h3 className="text-xl font-display font-black text-white leading-tight break-words">
+            <h3 className="text-xl font-display font-black text-white leading-tight break-words group-hover:text-neon-green transition-all duration-150">
               {exIdx + 1}. {we.exercise.name}
             </h3>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onToggleExpand) onToggleExpand();
-              }}
-              className="w-11 h-11 rounded-full bg-[#182337] border border-[#23334e] hover:border-slate-700 hover:text-white text-slate-300 flex items-center justify-center transition-all cursor-pointer grow-0 shrink-0 shadow-sm active:scale-90"
+            <div
+              className="w-11 h-11 rounded-full bg-[#182337] border border-[#23334e] group-hover:border-slate-700 text-slate-300 flex items-center justify-center transition-all grow-0 shrink-0 shadow-sm"
               title="Minimizar Exercício"
             >
               <ChevronUp className="w-6 h-6 stroke-[2.5]" />
-            </button>
+            </div>
           </div>
           {we.exercise.description && (
             <p className="text-gray-400 text-xs leading-relaxed mt-1 max-w-sm break-words">
@@ -237,29 +231,27 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
 
         <div className="space-y-2 w-full">
           {we.sets.map((set, set_idx) => {
-            // Interactive local state for this indices rest timer.
-            // Show inline rest timer below any completed set, as long as the next set in list is not yet completed.
-            const isNextSetPending = (set_idx < we.sets.length - 1) && !we.sets[set_idx + 1].isCompleted;
-            const isRestTimerShown = set.isCompleted && isNextSetPending;
+            // Contextual inline rest timer showing below individual completed set
+            const isRestTimerShown = set.isCompleted;
             
             return (
               <React.Fragment key={set.id}>
                 <div 
-                  className={`grid grid-cols-12 items-center gap-2 px-2 py-2 rounded-2xl transition-all relative group ${
+                  className={`grid grid-cols-12 items-center gap-2 px-2 py-3.5 rounded-2xl transition-all relative group ${
                     set.isCompleted 
-                      ? 'bg-neon-green/5 border border-neon-green/10' 
-                      : 'bg-transparent'
+                      ? 'bg-neon-green/5 border border-neon-green/10 shadow-[inner_0_0_15px_rgba(163,230,53,0.02)]' 
+                      : 'bg-transparent border border-transparent'
                   }`}
                 >
                   {/* Set Number */}
-                  <div className="col-span-2 flex items-center pl-1">
+                  <div className="col-span-2 flex items-center pl-1.5">
                     <span className={`text-sm font-mono font-black ${set.isCompleted ? 'text-neon-green font-extrabold' : 'text-slate-400'}`}>
                       {set_idx + 1}
                     </span>
                   </div>
 
                   {/* Weight Input (Sleek pill-shaped gray capsule with centered white text) */}
-                  <div className="col-span-4 px-0.5">
+                  <div className="col-span-4 px-1">
                     <input
                       type="number"
                       inputMode="decimal"
@@ -270,16 +262,16 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                       }}
                       placeholder="—"
                       disabled={set.isCompleted}
-                      className={`w-full bg-[#182337] border border-[#23334e]/50 text-center font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-neon-green/40 font-extrabold rounded-full py-2 transition-all ${
+                      className={`w-full bg-[#1e293b] border border-slate-700/80 text-center font-mono text-base text-white focus:outline-none focus:ring-2 focus:ring-neon-green/60 font-black rounded-full py-3 px-4 transition-all shadow-md ${
                         set.isCompleted 
-                          ? 'opacity-65 bg-[#121c2c]/85 text-[#94a3b8]' 
-                          : 'hover:border-slate-700'
+                          ? 'opacity-60 bg-[#151c28] border-transparent text-[#94a3b8] cursor-not-allowed' 
+                          : 'hover:border-slate-500'
                       }`}
                     />
                   </div>
 
                   {/* Reps Input (Sleek pill-shaped gray capsule with centered white text) */}
-                  <div className="col-span-3 px-0.5">
+                  <div className="col-span-3 px-1">
                     <input
                       type="number"
                       inputMode="numeric"
@@ -290,29 +282,29 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                       }}
                       placeholder="—"
                       disabled={set.isCompleted}
-                      className={`w-full bg-[#182337] border border-[#23334e]/50 text-center font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-neon-green/40 font-extrabold rounded-full py-2 transition-all ${
+                      className={`w-full bg-[#1e293b] border border-slate-700/80 text-center font-mono text-base text-white focus:outline-none focus:ring-2 focus:ring-neon-green/60 font-black rounded-full py-3 px-4 transition-all shadow-md ${
                         set.isCompleted 
-                          ? 'opacity-65 bg-[#121c2c]/85 text-[#94a3b8]' 
-                          : 'hover:border-slate-700'
+                          ? 'opacity-60 bg-[#151c28] border-transparent text-[#94a3b8] cursor-not-allowed' 
+                          : 'hover:border-slate-500'
                       }`}
                     />
                   </div>
 
-                  {/* Checkbox item - Square with rounded corners, glowing neon-green with dark checkmark only when 'Feito' */}
+                  {/* Checkbox item - Elegant square with rounded corners that fills with neon-green when checked */}
                   <div className="col-span-2 flex items-center justify-center">
                     <button
                       type="button"
                       onClick={() => handleSetCheckChange(we.id, set.id, set.weight, set.reps, set.isCompleted)}
-                      className={`w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer transition-all ${
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all shadow-inner border duration-200 ${
                         set.isCompleted
-                          ? 'bg-neon-green text-slate-950 scale-[1.08] shadow-[0_0_12px_rgba(163,230,53,0.45)] border border-neon-green'
-                          : 'bg-[#0d1527] border border-slate-800 text-slate-600 hover:border-neon-green/60'
+                          ? 'bg-neon-green border-neon-green text-slate-950 scale-102 shadow-[0_0_15px_rgba(163,230,53,0.4)]'
+                          : 'bg-slate-900/60 border-slate-800 text-slate-600 hover:border-neon-green/45 hover:bg-slate-900/90'
                       }`}
                     >
                       {set.isCompleted ? (
-                        <Check className="w-4 h-4 stroke-[3.5] text-slate-950" />
+                        <Check className="w-5 h-5 stroke-[4.5] text-slate-950" />
                       ) : (
-                        <span className="w-1.5 h-1.5 rounded bg-transparent"></span>
+                        <span className="w-2.5 h-2.5 rounded-sm bg-slate-800"></span>
                       )}
                     </button>
                   </div>
@@ -326,7 +318,7 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                         className="text-slate-600 hover:text-red-500 p-1 rounded cursor-pointer transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                         title="Remover série"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                   </div>

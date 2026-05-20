@@ -143,12 +143,9 @@ export default function ActiveWorkoutTab({
     const nextCompletedState = !currentlyCompleted;
     onUpdateSet(weId, setId, weight, reps, nextCompletedState);
 
-    // If marked as COMPLETED, activate rest timer
+    // If marked as COMPLETED, dynamically register and kick off the 54s contextual countdown timer
     if (nextCompletedState) {
-      setRestSeconds(60); // standard rest timer: 60 seconds
-      setInitialRestDuration(60);
-      setIsRestActive(true);
-      setRestTimerCompleted(false);
+      getTimerRemaining(setId);
     }
   };
 
