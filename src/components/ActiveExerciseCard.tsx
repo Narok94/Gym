@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Eye, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Trash2, Plus, Eye, ChevronDown, ChevronUp, Check, Flame, Trophy, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import { WorkoutExercise } from '../types';
 import { useWorkout } from '../WorkoutContext';
 
@@ -32,6 +33,76 @@ const playCompletionSound = () => {
     playTone(783.99, now + 0.09, 0.22);  // G5 (Tone 2 - bright, triumphant chimes)
   } catch (error) {
     console.error('Failed to trigger audio feedback chimes:', error);
+  }
+};
+
+// Triumphant rising digital chord for full exercise completion
+const playTriumphantSound = () => {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+    
+    const playTone = (freq: number, startTime: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'triangle'; // triangle has a softer, warmer retro game chime tone
+      osc.frequency.setValueAtTime(freq, startTime);
+      gain.gain.setValueAtTime(0.09, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    };
+
+    playTone(523.25, now, 0.15);         // C5
+    playTone(659.25, now + 0.12, 0.15);  // E5
+    playTone(783.99, now + 0.24, 0.15);  // G5
+    playTone(1046.50, now + 0.36, 0.35); // C6
+  } catch (error) {
+    console.error('Failed to play triumphant feedback sound:', error);
+  }
+};
+
+// Synthesize a high-tech/metallic iron plate clink when matching sets are completed
+const playIronPlateClink = () => {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    const oscHigh = ctx.createOscillator();
+    const oscBody = ctx.createOscillator();
+    const gainHigh = ctx.createGain();
+    const gainBody = ctx.createGain();
+
+    oscHigh.type = 'sine';
+    oscHigh.frequency.setValueAtTime(1400, now); // high ping frequency
+    gainHigh.gain.setValueAtTime(0.04, now);
+    gainHigh.gain.exponentialRampToValueAtTime(0.001, now + 0.12); // fast decay
+
+    oscBody.type = 'triangle';
+    oscBody.frequency.setValueAtTime(800, now); // iron plate clack body resonance
+    gainBody.gain.setValueAtTime(0.03, now);
+    gainBody.gain.exponentialRampToValueAtTime(0.001, now + 0.08); // even faster decay
+
+    oscHigh.connect(gainHigh);
+    gainHigh.connect(ctx.destination);
+
+    oscBody.connect(gainBody);
+    gainBody.connect(ctx.destination);
+
+    oscHigh.start(now);
+    oscHigh.stop(now + 0.15);
+    oscBody.start(now);
+    oscBody.stop(now + 0.15);
+  } catch (error) {
+    console.warn(error);
   }
 };
 
@@ -169,6 +240,9 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
   // Track active rest timer set id
   const [activeTimerSetId, setActiveTimerSetId] = useState<string | null>(null);
 
+  // New state for showing a brief victory glow and particle animation before auto-minimizing
+  const [showCelebration, setShowCelebration] = useState(false);
+
   // Calculate if ALL sets of this exercise are finished
   const allSetsDone = we.sets.length > 0 && we.sets.every(s => s.isCompleted);
   // Calculate if SOME but not all sets are finished
@@ -183,7 +257,9 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
 
   if (!isOpen) {
     return (
-      <div 
+      <motion.div 
+        layout
+        layoutId={`ex-card-layout-${we.id}`}
         onClick={() => setIsOpen(true)}
         className="bg-white border border-gray-150 rounded-2xl p-4 flex items-center justify-between transition-all select-none cursor-pointer group active:scale-[0.99] duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative overflow-hidden"
       >
@@ -223,14 +299,70 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
             <ChevronDown className="w-4.5 h-4.5 stroke-[2.5]" />
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-150 rounded-2xl p-4.5 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-4 transition-all w-full overflow-hidden select-none animate-fade-in relative">
-      {/* Left blue strip */}
-      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#0055ff] shadow-[1px_0_8px_rgba(0,85,255,0.4)]"></div>
+    <motion.div 
+      layout
+      layoutId={`ex-card-layout-${we.id}`}
+      className={`bg-white border rounded-2xl p-4.5 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-4 transition-all w-full overflow-hidden select-none animate-fade-in relative ${
+        showCelebration 
+          ? 'border-emerald-400 ring-4 ring-emerald-500/20 shadow-[0_0_25px_rgba(16,185,129,0.25)]' 
+          : 'border-gray-150'
+      }`}
+    >
+      {/* Left blue/green strip */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-colors duration-300 ${
+        showCelebration 
+          ? 'bg-emerald-500 shadow-[1px_0_8px_rgba(16,185,129,0.5)]' 
+          : 'bg-[#0055ff] shadow-[1px_0_8px_rgba(0,85,255,0.4)]'
+      }`}></div>
+
+      {/* Celebration overlay */}
+      {showCelebration && (
+        <div className="absolute inset-0 bg-white/95 backdrop-blur-xs flex flex-col items-center justify-center z-30 animate-fade-in px-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-2.5 max-w-[220px] shadow-xl transform scale-102 transition-transform">
+            <div className="w-12 h-12 rounded-full bg-[#0055ff] flex items-center justify-center text-white shadow-[0_0_12px_rgba(0,85,255,0.6)] animate-bounce">
+              <Dumbbell className="w-6 h-6 stroke-[3] rotate-45" />
+            </div>
+            <div>
+              <p className="text-xs font-mono tracking-widest text-blue-400 font-black uppercase flex items-center justify-center gap-1">
+                <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500 animate-pulse" /> TREINO CONCLUÍDO
+              </p>
+              <p className="text-xs text-white font-extrabold leading-relaxed mt-1">Esmagado com sucesso! 💪🔥</p>
+            </div>
+          </div>
+          
+          {/* Floating tiny particles simulating simple lightweight confetti */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(14)].map((_, i) => {
+              const randX = Math.random() * 100;
+              const randY = Math.random() * 100;
+              const delay = Math.random() * 0.4;
+              const scale = 0.4 + Math.random() * 0.8;
+              const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#84cc16'];
+              const randomColor = colors[i % colors.length];
+              return (
+                <span 
+                  key={i}
+                  className="absolute rounded-full animate-ping z-20"
+                  style={{
+                    left: `${randX}%`,
+                    top: `${randY}%`,
+                    width: `${6 * scale}px`,
+                    height: `${6 * scale}px`,
+                    backgroundColor: randomColor,
+                    animationDelay: `${delay}s`,
+                    animationDuration: '1s'
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Collapsible trigger header */}
       <div 
@@ -378,12 +510,38 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
                       type="button"
                       onClick={() => {
                         const nextCompleted = !set.isCompleted;
+                        
+                        // Check if checking this set completes the rest of the workout exercise
+                        const otherSetsAllDone = we.sets
+                          .filter(s => s.id !== set.id)
+                          .every(s => s.isCompleted);
+                        
+                        const isCompletingLastSetOfExercise = nextCompleted && otherSetsAllDone;
+
                         handleSetCheckChange(we.id, set.id, set.weight, set.reps, set.isCompleted);
-                        if (nextCompleted) {
-                          setActiveTimerSetId(set.id);
+                        
+                        if (isCompletingLastSetOfExercise) {
+                          // Play triumphant chord chime!
+                          playTriumphantSound();
+                          // Set local state to show a beautiful particle overlay
+                          setShowCelebration(true);
+                          // Clear active timer for this set because we completed the exercise
+                          setActiveTimerSetId(null);
+                          
+                          // Wait 1.3 seconds, then minimize the card
+                          setTimeout(() => {
+                            setIsOpen(false);
+                            setShowCelebration(false);
+                          }, 1300);
                         } else {
-                          if (activeTimerSetId === set.id) {
-                            setActiveTimerSetId(null);
+                          // Standard timer/state transition
+                          if (nextCompleted) {
+                            playIronPlateClink();
+                            setActiveTimerSetId(set.id);
+                          } else {
+                            if (activeTimerSetId === set.id) {
+                              setActiveTimerSetId(null);
+                            }
                           }
                         }
                       }}
@@ -439,7 +597,7 @@ const ActiveExerciseCard: React.FC<ActiveExerciseCardProps> = ({
         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
         <span>+ ADICIONAR SÉRIE</span>
       </button>
-    </div>
+    </motion.div>
   );
 };
 

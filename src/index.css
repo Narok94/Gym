@@ -20,6 +20,8 @@ html, body, #root {
   max-width: 100vw;
   position: relative;
   -webkit-font-smoothing: antialiased;
+  touch-action: pan-y; /* Prevent lateral swiping of the page */
+  overscroll-behavior-x: none; /* Prevents back-forward swipe navigation */
 }
 
 /* Redefined as refined, bright silver light metallic/white layout */

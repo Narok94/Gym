@@ -187,10 +187,10 @@ export default function ActiveWorkoutTab() {
   const profileLevelBadge = userProfile.level === 'Avançado' ? 'Atleta Premium' : `Atleta ${userProfile.level}`;
 
   return (
-    <div className="min-h-screen bg-white text-black -mx-4 -mt-5 -mb-8 p-4 relative z-50 flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-white text-black w-[calc(100%+2rem)] -mx-4 -mt-5 -mb-8 p-4 relative z-50 flex flex-col justify-between font-sans overflow-x-hidden">
       
       {/* 1. TOP DYNAMIC PROFILE BANNER */}
-      <div className="bg-white border-b border-gray-100 py-3 flex items-center justify-between -mx-4 -mt-4 px-4 select-none mb-3">
+      <div className="bg-white border-b border-gray-100 py-3 flex items-center justify-between w-[calc(100%+2rem)] -mx-4 -mt-4 px-4 select-none mb-3">
         <div className="flex items-center gap-3">
           {/* Back button */}
           <button 
