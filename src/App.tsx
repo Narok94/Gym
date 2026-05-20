@@ -77,58 +77,34 @@ export default function App() {
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const loginClean = userLogin.trim().toLowerCase();
-    if ((loginClean === 'henrique' || loginClean === 'alana' || loginClean === 'maria' || loginClean === 'ana') && passLogin === '9860') {
+    if (loginClean === 'henrique' && passLogin === '9860') {
       setIsAuthenticated(true);
       setLoginError('');
-      if (loginClean === 'alana' || loginClean === 'maria' || loginClean === 'ana') {
-        setUserProfile({
-          name: 'Alana Souza Adh',
-          avatarUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=200&auto=format&fit=crop',
-          level: 'Avançado',
-          gender: 'female',
-          streakDays: 7,
-          height: 165,
-          currentWeight: 59.5,
-          weightHistory: [
-            { date: 'Mar', weight: 61.2 },
-            { date: 'Abr', weight: 60.4 },
-            { date: 'Mai', weight: 59.5 }
-          ],
-          photos: [
-            'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=400'
-          ],
-          reminders: [
-            { id: 'rem-al1', dayOfWeek: 'Terça', time: '17:00', label: 'Treino de Superiores (Alana)', isActive: true },
-            { id: 'rem-al2', dayOfWeek: 'Quinta', time: '17:00', label: 'Treino de Quadríceps (Alana)', isActive: true }
-          ]
-        });
-      } else {
-        setUserProfile({
-          name: 'Henrique Lúcio da Costa',
-          avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
-          level: 'Intermediário',
-          gender: 'male',
-          streakDays: 4,
-          height: 180,
-          currentWeight: 81.2,
-          weightHistory: [
-            { date: 'Mar', weight: 83.5 },
-            { date: 'Abr', weight: 82.8 },
-            { date: 'Mai', weight: 81.2 }
-          ],
-          photos: [
-            'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=400',
-            'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&q=80&w=400'
-          ],
-          reminders: [
-            { id: 'rem-1', dayOfWeek: 'Segunda', time: '18:30', label: 'Esmagar Peito (Treino A)', isActive: true },
-            { id: 'rem-2', dayOfWeek: 'Quarta', time: '19:00', label: 'Foco em Costas (Treino B)', isActive: true },
-            { id: 'rem-3', dayOfWeek: 'Sexta', time: '18:00', label: 'Leg Day Hardcore (Treino C)', isActive: true }
-          ]
-        });
-      }
+      setUserProfile({
+        name: 'Henrique Lúcio da Costa',
+        avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=200',
+        level: 'Intermediário',
+        gender: 'male',
+        streakDays: 4,
+        height: 180,
+        currentWeight: 81.2,
+        weightHistory: [
+          { date: 'Mar', weight: 83.5 },
+          { date: 'Abr', weight: 82.8 },
+          { date: 'Mai', weight: 81.2 }
+        ],
+        photos: [
+          'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=400',
+          'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&q=80&w=400'
+        ],
+        reminders: [
+          { id: 'rem-1', dayOfWeek: 'Segunda', time: '18:30', label: 'Esmagar Peito (Treino A)', isActive: true },
+          { id: 'rem-2', dayOfWeek: 'Quarta', time: '19:00', label: 'Foco em Costas (Treino B)', isActive: true },
+          { id: 'rem-3', dayOfWeek: 'Sexta', time: '18:00', label: 'Leg Day Hardcore (Treino C)', isActive: true }
+        ]
+      });
     } else {
-      setLoginError('Credenciais inválidas. Use usuario: henrique ou alana e senha: 9860');
+      setLoginError('Credenciais inválidas. Use usuario: henrique e senha: 9860');
     }
   };
 
@@ -143,35 +119,34 @@ export default function App() {
 
   // IF NOT AUTHENTICATED, RENDER LOGIN VIEW
   if (!isAuthenticated) {
-    const isFemalePreview = userLogin.trim().toLowerCase() === 'alana' || userLogin.trim().toLowerCase() === 'maria' || userLogin.trim().toLowerCase() === 'ana';
-    const previewTextPlain = isFemalePreview ? 'text-pink-500' : 'text-blue-400';
-    const previewBg = isFemalePreview ? 'bg-pink-600 hover:bg-pink-500' : 'bg-blue-600 hover:bg-blue-500';
-    const previewRing = isFemalePreview ? 'focus:ring-pink-500 focus:border-pink-500' : 'focus:ring-blue-500 focus:border-blue-500';
+    const previewTextPlain = 'text-[#0055ff]';
+    const previewBg = 'bg-[#0055ff] hover:bg-[#0044ee]';
+    const previewRing = 'focus:ring-[#0055ff] focus:border-[#0055ff]';
 
     return (
-      <div className="w-full max-w-md min-h-screen bg-brushed-metal text-slate-100 flex flex-col justify-center items-center px-6 py-12 mx-auto relative border-x border-slate-900 shadow-2xl overflow-y-auto overflow-x-hidden">
+      <div className="w-full max-w-md min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col justify-center items-center px-6 py-12 mx-auto relative border-x border-gray-250/50 shadow-2xl overflow-y-auto overflow-x-hidden">
         {/* Layered Hex-gridding and Chain links and Glowing edges on body */}
-        <div className={`absolute inset-0 pointer-events-none opacity-20 pulse-texture ${isFemalePreview ? 'bg-hex-grid-pink' : 'bg-hex-grid'} bg-chain-link`}></div>
-        <div className={`absolute inset-0 pointer-events-none ${isFemalePreview ? 'ambient-glow-pink' : 'ambient-glow-blue'}`}></div>
+        <div className="absolute inset-0 pointer-events-none opacity-40 pulse-texture bg-hex-grid bg-chain-link"></div>
+        <div className="absolute inset-0 pointer-events-none ambient-glow-blue"></div>
         
         <div className="w-full space-y-8 relative z-10 animate-fade-in">
           {/* Header Brand */}
           <div className="text-center space-y-2">
-            <div className={`w-14 h-14 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center ${previewTextPlain} mx-auto shadow-xl`}>
+            <div className={`w-14 h-14 bg-white border border-gray-200 rounded-3xl flex items-center justify-center ${previewTextPlain} mx-auto shadow-md`}>
               <Dumbbell className="w-7 h-7" />
             </div>
-            <h1 className="text-3xl font-display font-extrabold tracking-tight text-white mt-4">
+            <h1 className="text-3xl font-display font-extrabold tracking-tight text-slate-900 mt-4">
               TATU <span className={previewTextPlain}>GYM</span>
             </h1>
-            <p className="text-gray-400 text-xs">Seu assistente premium de alta performance</p>
+            <p className="text-gray-500 text-xs">Seu assistente premium de alta performance</p>
           </div>
 
           {/* Form Credentials */}
-          <form onSubmit={handleLoginSubmit} className="space-y-4 bg-slate-900/60 border border-slate-800/80 p-6 rounded-3xl shadow-xl backdrop-blur-md">
+          <form onSubmit={handleLoginSubmit} className="space-y-4 bg-white border border-gray-150 p-6 rounded-3xl shadow-lg">
             <div className="space-y-4">
               {/* Username field */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase font-mono tracking-wider text-slate-400 font-bold block">Usuário</label>
+                <label className="text-[10px] uppercase font-mono tracking-wider text-gray-500 font-bold block">Usuário</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -179,15 +154,15 @@ export default function App() {
                     value={userLogin}
                     onChange={(e) => setUserLogin(e.target.value)}
                     placeholder="Seu usuário de treino"
-                    className={`w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-3 text-xs text-white outline-none focus:ring-1 ${previewRing} transition-all`}
+                    className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-3 text-xs text-slate-900 outline-none focus:ring-1 ${previewRing} transition-all`}
                   />
-                  <span className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-slate-500 text-xs font-semibold select-none">ID</span>
+                  <span className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs font-semibold select-none">ID</span>
                 </div>
               </div>
 
               {/* Password field */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase font-mono tracking-wider text-slate-400 font-bold block">Senha de Acesso</label>
+                <label className="text-[10px] uppercase font-mono tracking-wider text-gray-500 font-bold block">Senha de Acesso</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -195,12 +170,12 @@ export default function App() {
                     value={passLogin}
                     onChange={(e) => setPassLogin(e.target.value)}
                     placeholder="••••"
-                    className={`w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-3 pr-10 text-xs text-white outline-none focus:ring-1 ${previewRing} transition-all font-mono`}
+                    className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-3 pr-10 text-xs text-slate-900 outline-none focus:ring-1 ${previewRing} transition-all font-mono`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-slate-800 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -210,7 +185,7 @@ export default function App() {
 
             {/* Error Message */}
             {loginError && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2 text-red-400 text-[11px] leading-snug animate-fade-in">
+              <div className="bg-red-50 border border-red-100 rounded-xl p-3 flex items-start gap-2 text-red-600 text-[11px] leading-snug animate-fade-in">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{loginError}</span>
               </div>
@@ -219,20 +194,20 @@ export default function App() {
             {/* Submit Button */}
             <button
               type="submit"
-              className={`w-full ${previewBg} text-slate-100 font-display font-extrabold rounded-xl py-3 px-4 shadow-lg transition-all hover:scale-[1.01] cursor-pointer text-xs mt-2 uppercase tracking-wide`}
+              className={`w-full ${previewBg} text-white font-display font-extrabold rounded-xl py-3 px-4 shadow-md transition-all hover:scale-[1.01] cursor-pointer text-xs mt-2 uppercase tracking-wide`}
             >
               Iniciar Sessão ⚡
             </button>
           </form>
 
           {/* Quick instructions & tip for Sandbox grading reviewers */}
-          <div className="bg-slate-950/40 border border-slate-900 rounded-2xl p-4 text-center space-y-1.5 backdrop-blur-sm">
+          <div className="bg-white border border-gray-150 rounded-2xl p-4 text-center space-y-1.5 shadow-sm">
             <p className={`text-[10px] uppercase tracking-wider font-mono ${previewTextPlain} font-bold`}>Dica de Acesso Rápido</p>
-            <p className="text-xs text-gray-400">
-              Usuários: <strong className="text-white">henrique</strong> ou <strong className="text-white">alana</strong>
+            <p className="text-xs text-gray-550">
+              Usuário: <strong className="text-indigo-950 font-black">henrique</strong>
             </p>
-            <p className="text-xs text-gray-400">
-              Senha única: <strong className="text-white">9860</strong>
+            <p className="text-xs text-gray-550">
+              Senha única: <strong className="text-indigo-950 font-black">9860</strong>
             </p>
             <div className="pt-2 flex flex-col gap-1.5 items-center">
               <button 
@@ -241,19 +216,9 @@ export default function App() {
                   setUserLogin('henrique');
                   setPassLogin('9860');
                 }}
-                className={`text-[11.5px] font-sans text-blue-400 hover:underline cursor-pointer font-bold`}
+                className={`text-[11.5px] font-sans text-[#0055ff] hover:underline cursor-pointer font-bold`}
               >
-                Preencher Henrique (Masculino • Azul)
-              </button>
-              <button 
-                type="button"
-                onClick={() => {
-                  setUserLogin('alana');
-                  setPassLogin('9860');
-                }}
-                className={`text-[11.5px] font-sans text-pink-400 hover:underline cursor-pointer font-bold`}
-              >
-                Preencher Alana (Feminino • Rosa)
+                Preencher Henrique (Atleta de Alta Performance)
               </button>
             </div>
           </div>
@@ -263,10 +228,10 @@ export default function App() {
   }
 
   return (
-    <div className="w-full max-w-md min-h-screen bg-brushed-metal text-slate-100 flex flex-col mx-auto relative border-x border-slate-900 shadow-2xl pb-24 overflow-x-hidden">
+    <div className="w-full max-w-md min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col mx-auto relative border-x border-gray-200/50 shadow-2xl pb-24 overflow-x-hidden">
       {/* Textured background layers */}
-      <div className={`absolute inset-0 pointer-events-none opacity-25 pulse-texture ${isFemale ? 'bg-hex-grid-pink' : 'bg-hex-grid'} bg-chain-link`}></div>
-      <div className={`absolute inset-0 pointer-events-none ${isFemale ? 'ambient-glow-pink' : 'ambient-glow-blue'}`}></div>
+      <div className="absolute inset-0 pointer-events-none opacity-25 pulse-texture bg-hex-grid bg-chain-link"></div>
+      <div className="absolute inset-0 pointer-events-none ambient-glow-blue"></div>
 
       {/* Scrollable Container Content */}
       <main className="flex-1 overflow-y-auto px-4 pt-5 pb-8 relative z-10">
@@ -276,13 +241,6 @@ export default function App() {
 
         {activeTab === 'active-workout' && (
           <ActiveWorkoutTab />
-        )}
-
-        {activeTab === 'exercises' && (
-          <ExercisesTab
-            activeWorkout={activeWorkout}
-            onAddExerciseToActive={handleAddExerciseToActive}
-          />
         )}
 
         {activeTab === 'profile' && (
@@ -305,11 +263,11 @@ export default function App() {
 
       {/* Floating Bottom Navigation Bar */}
       {!(activeWorkout && activeTab === 'active-workout') && (
-        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-950/90 backdrop-blur-xl border-t border-slate-900 py-2.5 z-40 px-5 flex items-center justify-between shadow-2xl">
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-xl border-t border-gray-200/80 py-2.5 z-40 px-5 flex items-center justify-around shadow-2xl">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
-              activeTab === 'dashboard' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+              activeTab === 'dashboard' ? 'text-[#0055ff] font-extrabold' : 'text-slate-400 hover:text-slate-700'
             }`}
             id="nav-tab-dashboard"
           >
@@ -320,33 +278,22 @@ export default function App() {
           <button
             onClick={() => setActiveTab('active-workout')}
             className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 relative ${
-              activeTab === 'active-workout' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+              activeTab === 'active-workout' ? 'text-[#0055ff] font-extrabold' : 'text-slate-400 hover:text-slate-700'
             }`}
             id="nav-tab-active-workout"
           >
             {/* Active Workout Notification Dot */}
             {activeWorkout && (
-              <span className={`absolute top-1 right-5 w-2.5 h-2.5 ${isFemale ? 'bg-pink-500' : 'bg-blue-550'} border border-slate-950 rounded-full animate-ping`}></span>
+              <span className="absolute top-1 right-5 w-2.5 h-2.5 bg-[#0055ff] border border-white rounded-full animate-ping"></span>
             )}
             <Dumbbell className="w-5 h-5" />
             <span className="text-[10px] tracking-wide font-sans">Treino Ativo</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('exercises')}
-            className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
-              activeTab === 'exercises' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
-            }`}
-            id="nav-tab-exercises"
-          >
-            <Compass className="w-5 h-5" />
-            <span className="text-[10px] tracking-wide font-sans">Exercícios</span>
-          </button>
-
-          <button
             onClick={() => setActiveTab('profile')}
             className={`flex flex-col items-center gap-1.5 transition-colors cursor-pointer w-20 py-1 ${
-              activeTab === 'profile' ? (isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold') : 'text-slate-500 hover:text-slate-300'
+              activeTab === 'profile' ? 'text-[#0055ff] font-extrabold' : 'text-slate-400 hover:text-slate-700'
             }`}
             id="nav-tab-profile"
           >

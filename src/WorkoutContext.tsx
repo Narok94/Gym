@@ -100,13 +100,25 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const stored = localStorage.getItem('tatu_userProfile');
       if (stored) {
         try {
-          return JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          const savedImage = localStorage.getItem('tatu_gym_profile_image');
+          if (savedImage) {
+            parsed.avatarUrl = savedImage;
+          }
+          return parsed;
         } catch (e) {
           console.error(e);
         }
       }
     }
-    return MOCK_USER_PROFILE;
+    const defaultProfile = { ...MOCK_USER_PROFILE };
+    if (typeof window !== 'undefined') {
+      const savedImage = localStorage.getItem('tatu_gym_profile_image');
+      if (savedImage) {
+        defaultProfile.avatarUrl = savedImage;
+      }
+    }
+    return defaultProfile;
   });
 
   const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutSession[]>(WORKOUT_TEMPLATES);
@@ -493,16 +505,16 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setActiveWorkout(null);
   };
 
-  const isFemale = userProfile.gender === 'female';
-  const accentText = isFemale ? 'text-pink-500 font-extrabold' : 'text-blue-400 font-extrabold';
-  const accentTextPlain = isFemale ? 'text-pink-400' : 'text-blue-450';
-  const accentBg = isFemale ? 'bg-pink-600' : 'bg-blue-600';
-  const accentBgHover = isFemale ? 'hover:bg-pink-500' : 'hover:bg-blue-500';
-  const accentBorder = isFemale ? 'border-pink-500/30' : 'border-blue-500/30';
-  const accentGlow = isFemale ? 'shadow-[0_4px_25px_rgba(236,72,153,0.35)]' : 'shadow-[0_4px_25px_rgba(37,99,235,0.35)]';
-  const accentRing = isFemale ? 'focus:ring-pink-500 focus:border-pink-500' : 'focus:ring-blue-500 focus:border-blue-500';
-  const accentFill = isFemale ? 'fill-pink-500 text-pink-500' : 'fill-blue-500 text-blue-500';
-  const accentBadge = isFemale ? 'bg-pink-500/10 text-pink-400 border border-pink-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+  const isFemale = false; // 100% unified global theme
+  const accentText = 'text-[#0055ff] font-extrabold';
+  const accentTextPlain = 'text-[#0055ff]';
+  const accentBg = 'bg-[#0055ff]';
+  const accentBgHover = 'hover:bg-[#0044ee]';
+  const accentBorder = 'border-[#0055ff]/30';
+  const accentGlow = 'shadow-[0_4px_25px_rgba(0,85,255,0.15)]';
+  const accentRing = 'focus:ring-[#0055ff] focus:border-[#0055ff]';
+  const accentFill = 'fill-[#0055ff] text-[#0055ff]';
+  const accentBadge = 'bg-[#0055ff]/10 text-[#0055ff] border border-[#0055ff]/20';
 
   return (
     <WorkoutContext.Provider

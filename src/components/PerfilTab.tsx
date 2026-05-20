@@ -78,13 +78,24 @@ export default function PerfilTab({
   const [editLevel, setEditLevel] = useState(userProfile.level);
   const [editGender, setEditGender] = useState<'male' | 'female'>(userProfile.gender || 'male');
 
+  const [persistedAvatar, setPersistedAvatar] = useState<string>('');
+
+  // Effect to load and inject persisted profile picture on mount and whenever userProfile changes
+  useEffect(() => {
+    const saved = localStorage.getItem('tatu_gym_profile_image');
+    if (saved) {
+      setPersistedAvatar(saved);
+    }
+  }, [userProfile.avatarUrl]);
+
   // Sync edits state with profile updates only when NOT actively editing to avoid text field resets
   useEffect(() => {
     if (!isEditing) {
       setEditName(userProfile.name);
       setEditHeight(String(userProfile.height));
       setEditWeight(String(userProfile.currentWeight));
-      setEditAvatarUrl(userProfile.avatarUrl);
+      const saved = localStorage.getItem('tatu_gym_profile_image');
+      setEditAvatarUrl(saved || userProfile.avatarUrl);
       setEditLevel(userProfile.level);
       setEditGender(userProfile.gender || 'male');
     }
@@ -138,6 +149,10 @@ export default function PerfilTab({
       setErrorMsg('Nome não pode estar vazio');
       return;
     }
+    if (editAvatarUrl) {
+      localStorage.setItem('tatu_gym_profile_image', editAvatarUrl);
+      setPersistedAvatar(editAvatarUrl);
+    }
     onUpdateProfile({
       name: editName,
       avatarUrl: editAvatarUrl,
@@ -162,6 +177,9 @@ export default function PerfilTab({
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {
           if (target === 'avatar') {
+            localStorage.setItem('tatu_gym_profile_image', reader.result);
+            setPersistedAvatar(reader.result);
+            setEditAvatarUrl(reader.result);
             setCropSrc(reader.result);
             setCropScale(1.0);
             setCropOffset({ x: 0, y: 0 });
@@ -244,12 +262,11 @@ export default function PerfilTab({
 
   return (
     <div className="space-y-6 animate-fade-in px-1 pb-20 w-full overflow-x-hidden">
-      
       {/* 1. PROFILE HEADER CARD (TOGGLE EDITABLE) */}
       {!isEditing ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden w-full">
+        <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm relative overflow-hidden w-full">
           {/* Accent decoration */}
-          <div className={`absolute top-0 right-0 w-32 h-32 ${isFemale ? 'bg-pink-500/5' : 'bg-blue-500/5'} rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none`}></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
           
           <button
             onClick={() => {
@@ -260,7 +277,7 @@ export default function PerfilTab({
               setEditAvatarUrl(userProfile.avatarUrl);
               setEditLevel(userProfile.level);
             }}
-            className={`absolute top-4 right-4 flex items-center gap-1 bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:${accentBorder} transition-all rounded-lg p-2 text-xs font-bold ${accentText} cursor-pointer select-none`}
+            className={`absolute top-4 right-4 flex items-center gap-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:${accentBorder} transition-all rounded-lg p-2 text-xs font-bold ${accentText} cursor-pointer select-none`}
             title="Editar dados"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -271,20 +288,20 @@ export default function PerfilTab({
           <div className="flex flex-col items-center text-center space-y-3 pt-2">
             <div className="relative">
               <img 
-                src={userProfile.avatarUrl} 
+                src={persistedAvatar || userProfile.avatarUrl} 
                 alt={userProfile.name} 
-                className={`w-20 h-20 rounded-full object-cover border-4 ${isFemale ? 'border-pink-500/95 shadow-pink-550/10' : 'border-blue-500/90 shadow-blue-500/10'} shadow-lg`}
+                className="w-20 h-20 rounded-full object-cover border-4 border-[#0055ff]/90 shadow-lg"
                 referrerPolicy="no-referrer"
               />
-              <div className={`absolute -bottom-1 -right-1 ${accentBg} text-slate-100 p-1.5 rounded-full border-2 border-slate-900`}>
+              <div className={`absolute -bottom-1 -right-1 ${accentBg} text-white p-1.5 rounded-full border-2 border-white`}>
                 <Sparkles className="w-3.5 h-3.5 fill-white text-white" />
               </div>
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-lg font-display font-extrabold text-white tracking-wide">{userProfile.name}</h2>
+              <h2 className="text-lg font-display font-extrabold text-slate-900 tracking-wide">{userProfile.name}</h2>
               <div className="flex items-center justify-center gap-1.5">
-                <span className={`text-[10px] font-mono font-bold ${isFemale ? 'bg-pink-500/15 text-pink-400 border-pink-550/20' : 'bg-blue-500/15 text-blue-400 border-blue-550/20'} px-2.5 py-0.5 rounded-full border uppercase`}>
+                <span className="text-[10px] font-mono font-bold bg-[#0055ff]/10 text-[#0055ff] border border-[#0055ff]/20 px-2.5 py-0.5 rounded-full border uppercase">
                   Atleta {userProfile.level}
                 </span>
               </div>
@@ -292,33 +309,33 @@ export default function PerfilTab({
           </div>
 
           {/* Bio Physical Metrics Panel */}
-          <div className="grid grid-cols-3 gap-2.5 mt-5 pt-4 border-t border-slate-800/60 text-center">
-            <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
-              <span className="text-[9px] text-gray-500 block uppercase font-mono">Altura</span>
-              <span className="text-xs font-bold text-white font-mono">{userProfile.height} cm</span>
+          <div className="grid grid-cols-3 gap-2.5 mt-5 pt-4 border-t border-gray-100 text-center">
+            <div className="bg-gray-50 p-2 rounded-xl border border-gray-150/80">
+              <span className="text-[9px] text-gray-550 block uppercase font-mono">Altura</span>
+              <span className="text-xs font-bold text-slate-900 font-mono">{userProfile.height} cm</span>
             </div>
-            <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
-              <span className="text-[9px] text-gray-500 block uppercase font-mono">Peso Atual</span>
+            <div className="bg-gray-50 p-2 rounded-xl border border-gray-150/80">
+              <span className="text-[9px] text-gray-550 block uppercase font-mono">Peso Atual</span>
               <span className={`text-xs font-bold ${accentText} font-mono`}>{userProfile.currentWeight} kg</span>
             </div>
-            <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-850/40">
-              <span className="text-[9px] text-gray-500 block uppercase font-mono">Realizados</span>
-              <span className="text-xs font-bold text-white font-mono">{workoutHistory.length}</span>
+            <div className="bg-gray-50 p-2 rounded-xl border border-gray-150/80">
+              <span className="text-[9px] text-gray-550 block uppercase font-mono">Realizados</span>
+              <span className="text-xs font-bold text-slate-900 font-mono">{workoutHistory.length}</span>
             </div>
           </div>
         </div>
       ) : (
         /* EDIT PROFILE FORM INTERACTIVE CARD */
-        <form onSubmit={handleProfileSave} className="bg-slate-900 border border-slate-700 rounded-2xl p-5 shadow-xl relative animate-fade-in space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-            <h3 className="text-sm font-display font-bold text-white flex items-center gap-1.5">
+        <form onSubmit={handleProfileSave} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md relative animate-fade-in space-y-4">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
+            <h3 className="text-sm font-display font-bold text-slate-900 flex items-center gap-1.5">
               <Edit2 className={`w-4 h-4 ${accentText}`} />
               <span>Modificar Perfil</span>
             </h3>
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="text-slate-500 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-slate-800 transition-colors"
             >
               <X className="w-4.5 h-4.5" />
             </button>
@@ -1211,6 +1228,8 @@ export default function PerfilTab({
                       ctx.restore();
 
                       const croppedUrl = canvas.toDataURL('image/jpeg', 0.9);
+                      localStorage.setItem('tatu_gym_profile_image', croppedUrl);
+                      setPersistedAvatar(croppedUrl);
                       setEditAvatarUrl(croppedUrl);
                       setCropSrc(null);
                     }
